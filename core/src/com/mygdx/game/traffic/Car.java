@@ -21,6 +21,7 @@ public class Car extends TrafficParticipant implements Steerable{
     private CarState prevState;
     private float cosSpeed;
     private float sinSpeed;
+    private Car carAhead;
 
     public boolean steer(boolean dir) {
         cosSpeed = velocity * (float)Math.cos(toRadians(anglePassed));  //pradzioj 4*1 = 4
@@ -54,21 +55,22 @@ public class Car extends TrafficParticipant implements Steerable{
     }
 
     public Car(Sprite sprite, float velocity, float angle, Vector2 carPos, CarDirection carDirection,
-               CarState carState) {
+               CarState carState, Car carAhead) {
         super(sprite, velocity, angle, carPos);
         this.carDirection = carDirection;
         this.carState = carState;
         this.prevState = carState;
+        this.carAhead = carAhead;
         maxVelocity = 8f;
         carCount++;
         if(velocity == 0) super.velocity = maxVelocity;
     }
     public Car(String imageSrc, float velocity, float angle, Vector2 carPos, CarDirection carDirection,
-               CarState carState){
-        this(new Sprite(new Texture(imageSrc)), velocity, angle, carPos, carDirection, carState);
+               CarState carState, Car carAhead){
+        this(new Sprite(new Texture(imageSrc)), velocity, angle, carPos, carDirection, carState, carAhead);
     }
     public Car(){
-        this("car1.png", 0, 0, new Vector2(0, 0), CarDirection.LEFT, CarState.BRAKE);
+        this("car1.png", 0, 0, new Vector2(0, 0), CarDirection.LEFT, CarState.BRAKE, null);
     }
 
 

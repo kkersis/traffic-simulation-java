@@ -23,7 +23,8 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	private ArrayList<TrafficLight> trafficLights = new ArrayList<>();
 	private TrafficParticipant participant;
 	private ShapeRenderer shapeRenderer;
-	TrafficLightManager trafficLightManager;
+	private TrafficLightManager trafficLightManager;
+	private CarsSpawnManager carsSpawnManager;
 	
 	@Override
 	public void create () {
@@ -33,6 +34,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		spawnTrafficLights();
 		shapeRenderer = new ShapeRenderer();
 		trafficLightManager = new TrafficLightManager(trafficLights);
+		carsSpawnManager = new CarsSpawnManager();
 		//ped = new Pedestrian("ped.png", 2, 0, new Vector2(500, 500));
 		/*try {
 			//spawnCarsLeft();
@@ -75,14 +77,9 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		}
 		batch.end();
 
-
-
-
-
-
-
-
 	}
+
+
 	
 	@Override
 	public void dispose () {
@@ -92,18 +89,39 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
 
 	@Override
-	public boolean keyDown(int keycode) {
+	public boolean keyDown(int keycode){
 		if(keycode == Keys.LEFT){
-			spawnCarsLeft();
+			try {
+				spawnCarsLeft();
+			}catch (SpawnException e){
+				System.out.println(e + " " + e.getDirection() + ", " + e.getLane() + " juostoje.");
+			}
+			catch (TrafficSimulationException e){
+				System.out.println("" + e);
+				keyDown(Keys.LEFT);
+			}
+
 		}
 		if(keycode == Keys.UP){
-			spawnCarsUp();
+			try {
+				spawnCarsUp();
+			}catch (SpawnException e){
+				System.out.println(e + " " + e.getDirection() + ", " + e.getLane() + " juostoje.");
+			}
 		}
 		if(keycode == Keys.RIGHT){
-			spawnCarsRight();
+			try {
+				spawnCarsRight();
+			}catch (SpawnException e){
+				System.out.println(e + " " + e.getDirection() + ", " + e.getLane() + " juostoje.");
+			}
 		}
 		if(keycode == Keys.DOWN){
-			spawnCarsDown();
+			try {
+				spawnCarsDown();
+			}catch (SpawnException e){
+				System.out.println(e + " " + e.getDirection() + ", " + e.getLane() + " juostoje.");
+			}
 		}
 		if(keycode == Keys.SPACE){
 			cars.get(2).setCarDirection(Car.CarDirection.RIGHT_UP);
@@ -215,61 +233,141 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		trafficParticipants.add(participant);
 		pedestrians.add((Pedestrian)participant);
 	}
-	
-	
-	
-	private void spawnCarsLeft () {
-		participant = new Car(getRandomCarImage(), 0, 0, new Vector2(-100-300*getRandom(), 325), Car.CarDirection.RIGHT, Car.CarState.MOVE_X);
+
+
+
+	public void spawnCarsLeft () throws TrafficSimulationException{
+		float randPos = -100+300*getRandom();
+		if(randPos > -50){
+			throw new TrafficSimulationException("Negalima pozicija");
+		}
+		Car lastCar = carsSpawnManager.getLeftLast(0);
+		if(lastCar != null && randPos + 120 > lastCar.getSprite().getX()) {
+			throw new SpawnException("kairėje", 1);
+		}
+		participant = new Car(getRandomCarImage(), 0, 0, new Vector2(randPos, 445), Car.CarDirection.RIGHT, Car.CarState.MOVE_X, lastCar);
 		trafficParticipants.add(participant);
 		cars.add((Car) participant);
-
-		participant = new Car(getRandomCarImage(), 0, 0, new Vector2(-100-300*getRandom(), 385), Car.CarDirection.RIGHT, Car.CarState.MOVE_X);
+		carsSpawnManager.setLeftLast(0, (Car) participant);
+		//-----------------KITA JUOSTA-------------------
+		randPos = -100-300*getRandom();
+		if(randPos > -50){
+			throw new TrafficSimulationException("Negalima pozicija");
+		}
+		lastCar = carsSpawnManager.getLeftLast(1);
+		if(lastCar != null && randPos + 120 > lastCar.getSprite().getX()) {
+			throw new SpawnException("kairėje", 2);
+		}
+		participant = new Car(getRandomCarImage(), 0, 0, new Vector2(randPos, 385), Car.CarDirection.RIGHT, Car.CarState.MOVE_X, lastCar);
 		trafficParticipants.add(participant);
 		cars.add((Car) participant);
-
-		participant = new Car(getRandomCarImage(), 0, 0, new Vector2(-100-300*getRandom(), 445), Car.CarDirection.RIGHT, Car.CarState.MOVE_X);
+		carsSpawnManager.setLeftLast(1, (Car) participant);
+		//-----------------KITA JUOSTA-------------------
+		randPos = -100-300*getRandom();
+		if(randPos > -50){
+			throw new TrafficSimulationException("Negalima pozicija");
+		}
+		lastCar = carsSpawnManager.getLeftLast(2);
+		if(lastCar != null && randPos + 120 > lastCar.getSprite().getX()) {
+			throw new SpawnException("kairėje", 3);
+		}
+		participant = new Car(getRandomCarImage(), 0, 0, new Vector2(randPos, 325), Car.CarDirection.RIGHT, Car.CarState.MOVE_X, lastCar);
 		trafficParticipants.add(participant);
 		cars.add((Car) participant);
-
+		carsSpawnManager.setLeftLast(2, (Car) participant);
 	}
-	private void spawnCarsUp () {
-		participant = new Car(getRandomCarImage(), 0, 270, new Vector2(425, 1100+300*getRandom()), Car.CarDirection.DOWN, Car.CarState.MOVE_Y);
+	public void spawnCarsUp () throws SpawnException{
+		float randPos = 1100+300*getRandom();
+		Car lastCar = carsSpawnManager.getUpLast(0);
+		if(lastCar != null && randPos - 120 < lastCar.getSprite().getY()) {
+			throw new SpawnException("viršuje" , 1);
+		}
+		participant = new Car(getRandomCarImage(), 0, 270, new Vector2(425, randPos), Car.CarDirection.DOWN, Car.CarState.MOVE_Y, lastCar);
 		trafficParticipants.add(participant);
 		cars.add((Car) participant);
-
-		participant = new Car(getRandomCarImage(), 0, 270, new Vector2(365, 1100+300*getRandom()), Car.CarDirection.DOWN, Car.CarState.MOVE_Y);
+		carsSpawnManager.setUpLast(0, (Car) participant);
+		//-----------------KITA JUOSTA-------------------
+		randPos = 1100+300*getRandom();
+		lastCar = carsSpawnManager.getUpLast(1);
+		if(lastCar != null && randPos - 120 < lastCar.getSprite().getY()) {
+			throw new SpawnException("viršuje" , 2);
+		}
+		participant = new Car(getRandomCarImage(), 0, 270, new Vector2(365, randPos), Car.CarDirection.DOWN, Car.CarState.MOVE_Y, lastCar);
 		trafficParticipants.add(participant);
 		cars.add((Car) participant);
-
-		participant = new Car(getRandomCarImage(), 0, 270, new Vector2(305, 1100+300*getRandom()), Car.CarDirection.DOWN, Car.CarState.MOVE_Y);
+		carsSpawnManager.setUpLast(1, (Car) participant);
+		//-----------------KITA JUOSTA-------------------
+		randPos = 1100+300*getRandom();
+		lastCar = carsSpawnManager.getUpLast(2);
+		if(lastCar != null && randPos - 120 < lastCar.getSprite().getY()) {
+			throw new SpawnException("viršuje" , 3);
+		}
+		participant = new Car(getRandomCarImage(), 0, 270, new Vector2(305, randPos), Car.CarDirection.DOWN, Car.CarState.MOVE_Y, lastCar);
 		trafficParticipants.add(participant);
 		cars.add((Car) participant);
+		carsSpawnManager.setUpLast(2, (Car) participant);
 	}
-	private void spawnCarsRight () {
-		participant = new Car(getRandomCarImage(), 0, 180, new Vector2(1100+300*getRandom(), 510), Car.CarDirection.LEFT, Car.CarState.MOVE_X);
+	public void spawnCarsRight () throws SpawnException{
+		float randPos = 1100+300*getRandom();
+		Car lastCar = carsSpawnManager.getRightLast(0);
+		if(lastCar != null && randPos - 120 < lastCar.getSprite().getX()) {
+			throw new SpawnException("dešinėje" , 1);
+		}
+		participant = new Car(getRandomCarImage(), 0, 180, new Vector2(randPos, 510), Car.CarDirection.LEFT, Car.CarState.MOVE_X, lastCar);
 		trafficParticipants.add(participant);
 		cars.add((Car) participant);
-
-		participant = new Car(getRandomCarImage(), 0, 180, new Vector2(1100+300*getRandom(), 570), Car.CarDirection.LEFT, Car.CarState.MOVE_X);
+		carsSpawnManager.setRightLast(0, (Car) participant);
+		//-----------------KITA JUOSTA-------------------
+		randPos = 1100+300*getRandom();
+		lastCar = carsSpawnManager.getRightLast(1);
+		if(lastCar != null && randPos - 120 < lastCar.getSprite().getX()) {
+			throw new SpawnException("dešinėje" , 2);
+		}
+		participant = new Car(getRandomCarImage(), 0, 180, new Vector2(randPos, 570), Car.CarDirection.LEFT, Car.CarState.MOVE_X, lastCar);
 		trafficParticipants.add(participant);
 		cars.add((Car) participant);
-
-		participant = new Car(getRandomCarImage(), 0, 180, new Vector2(1100+300*getRandom(), 630), Car.CarDirection.LEFT, Car.CarState.MOVE_X);
+		carsSpawnManager.setRightLast(1, (Car) participant);
+		//-----------------KITA JUOSTA-------------------
+		randPos = 1100+300*getRandom();
+		lastCar = carsSpawnManager.getRightLast(2);
+		if(lastCar != null && randPos - 120 < lastCar.getSprite().getX()) {
+			throw new SpawnException("dešinėje" , 3);
+		}
+		participant = new Car(getRandomCarImage(), 0, 180, new Vector2(randPos, 630), Car.CarDirection.LEFT, Car.CarState.MOVE_X, lastCar);
 		trafficParticipants.add(participant);
 		cars.add((Car) participant);
+		carsSpawnManager.setRightLast(2, (Car) participant);
 	}
-	private void spawnCarsDown () {
-		participant = new Car(getRandomCarImage(), 0, 90, new Vector2(485, -100-300*getRandom()), Car.CarDirection.UP, Car.CarState.MOVE_Y);
+	public void spawnCarsDown () throws SpawnException{
+		float randPos = -100-300*getRandom();
+		Car lastCar = carsSpawnManager.getDownLast(0);
+		if(lastCar != null && randPos + 120 > lastCar.getSprite().getY()) {
+			throw new SpawnException("apačioje" , 1);
+		}
+		participant = new Car(getRandomCarImage(), 0, 90, new Vector2(485, randPos), Car.CarDirection.UP, Car.CarState.MOVE_Y, lastCar);
 		trafficParticipants.add(participant);
 		cars.add((Car) participant);
-
-		participant = new Car(getRandomCarImage(), 0, 90, new Vector2(545, -100-300*getRandom()), Car.CarDirection.UP, Car.CarState.MOVE_Y);
+		carsSpawnManager.setDownLast(0, (Car) participant);
+		//-----------------KITA JUOSTA-------------------
+		randPos = -100-300*getRandom();
+		lastCar = carsSpawnManager.getDownLast(1);
+		if(lastCar != null && randPos + 120 > lastCar.getSprite().getY()) {
+			throw new SpawnException("apačioje" , 2);
+		}
+		participant = new Car(getRandomCarImage(), 0, 90, new Vector2(545, randPos), Car.CarDirection.UP, Car.CarState.MOVE_Y, lastCar);
 		trafficParticipants.add(participant);
 		cars.add((Car) participant);
-
-		participant = new Car(getRandomCarImage(), 0, 90, new Vector2(605, -100-300*getRandom()), Car.CarDirection.UP, Car.CarState.MOVE_Y);
+		carsSpawnManager.setDownLast(1, (Car) participant);
+		//-----------------KITA JUOSTA-------------------
+		randPos = -100-300*getRandom();
+		lastCar = carsSpawnManager.getDownLast(2);
+		if(lastCar != null && randPos + 120 > lastCar.getSprite().getY()) {
+			throw new SpawnException("apačioje" , 3);
+		}
+		participant = new Car(getRandomCarImage(), 0, 90, new Vector2(605, randPos), Car.CarDirection.UP, Car.CarState.MOVE_Y, lastCar);
 		trafficParticipants.add(participant);
 		cars.add((Car) participant);
+		carsSpawnManager.setDownLast(2, (Car) participant);
 	}
 
 
@@ -325,4 +423,6 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	public boolean scrolled(int amount) {
 		return false;
 	}
+
 }
+
