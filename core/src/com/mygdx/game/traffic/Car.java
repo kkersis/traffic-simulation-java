@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import static java.lang.Math.*;
 
-public class Car extends TrafficParticipant implements Steerable{
+public class Car extends TrafficParticipant implements Steerable, Cloneable{
     public enum CarDirection{LEFT, RIGHT, UP, DOWN, DOWN_LEFT,RIGHT_DOWN,
         LEFT_UP, UP_LEFT, UP_RIGHT, RIGHT_UP, DOWN_RIGHT, LEFT_DOWN}
     public enum CarState{BRAKE, MOVE_X, MOVE_Y, TURNING}
@@ -22,6 +22,16 @@ public class Car extends TrafficParticipant implements Steerable{
     private float cosSpeed;
     private float sinSpeed;
     private Car carAhead;
+
+
+    @Override
+    public Object clone() throws CloneNotSupportedException{
+        Car car = (Car) super.clone();
+        if(carAhead != null){
+            car.setAhead((Car) carAhead.clone());
+        }
+        return car;
+    }
 
     public boolean steer(boolean dir) {
         cosSpeed = velocity * (float)Math.cos(toRadians(anglePassed));  //pradzioj 4*1 = 4
@@ -53,6 +63,7 @@ public class Car extends TrafficParticipant implements Steerable{
     public static void carDestroyed() {
         carCount--;
     }
+
 
     public Car(Sprite sprite, float velocity, float angle, Vector2 carPos, CarDirection carDirection,
                CarState carState, Car carAhead) {
@@ -98,10 +109,17 @@ public class Car extends TrafficParticipant implements Steerable{
         return command;
     }
 
+
+
     @Override
     public int getCount()
     {
         return carCount;
+    }
+
+    @Override
+    public void setAhead(TrafficParticipant ahead) {
+        this.carAhead = (Car)ahead;
     }
 
     @Override

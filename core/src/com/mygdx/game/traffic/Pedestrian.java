@@ -12,6 +12,12 @@ public class Pedestrian extends TrafficParticipant{
     private PedestrianState pedestrianState;
     private PedestrianCommand pedestrianCommand;
 
+    @Override
+    public Object clone() throws CloneNotSupportedException{
+        return super.clone();
+    }
+
+
     public Pedestrian(Sprite sprite, float velocity, float angle, Vector2 pedestrianPos, PedestrianState pedestrianState,
                       PedestrianCommand pedestrianCommand){
         super(sprite, velocity, angle, pedestrianPos);
@@ -27,6 +33,9 @@ public class Pedestrian extends TrafficParticipant{
     public Pedestrian(){
         this(new Sprite(new Texture("ped.png")), 0, 0, new Vector2(0, 0), PedestrianState.MOVE_X, PedestrianCommand.GO);
     }
+
+    @Override
+    public void setAhead(TrafficParticipant ahead) {}
 
 
     public Pedestrian.PedestrianState getPedState() {

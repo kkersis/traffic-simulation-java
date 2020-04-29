@@ -2,17 +2,16 @@ package com.mygdx.game.simulation;
 
 import com.mygdx.game.traffic.Car;
 
-import java.util.ArrayList;
 
 public class CarsSpawnManager {
-    private Car[] leftLast = {null, null, null};    //left, mid, right
-    private Car[] upLast = {null, null, null};    //left, mid, right
-    private Car[] rightLast = {null, null, null};    //left, mid, right
-    private Car[] downLast = {null, null, null};    //left, mid, right
+    final private Car[] leftLast = {null, null, null};    //left, mid, right
+    final private Car[] upLast = {null, null, null};    //left, mid, right
+    final private Car[] rightLast = {null, null, null};    //left, mid, right
+    final private Car[] downLast = {null, null, null};    //left, mid, right
 
 
-    public Car getLeftLast(int place) {
-        return leftLast[place];
+    public Car getLeftLast(int place){
+        return this.leftLast[place];
     }
 
     public void setLeftLast(int place, Car car) {

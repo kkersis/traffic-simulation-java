@@ -17,14 +17,14 @@ import java.util.Random;
 public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	private SpriteBatch batch;
 	private Texture backgroundImage;
-	private ArrayList<Car> cars = new ArrayList<>();
-	private ArrayList<Pedestrian> pedestrians = new ArrayList<>();
-	private ArrayList<TrafficParticipant> trafficParticipants = new ArrayList<>();
-	private ArrayList<TrafficLight> trafficLights = new ArrayList<>();
 	private TrafficParticipant participant;
 	private ShapeRenderer shapeRenderer;
 	private TrafficLightManager trafficLightManager;
 	private CarsSpawnManager carsSpawnManager;
+	final private ArrayList<Car> cars = new ArrayList<>();
+	final private ArrayList<Pedestrian> pedestrians = new ArrayList<>();
+	final private ArrayList<TrafficParticipant> trafficParticipants = new ArrayList<>();
+	final private ArrayList<TrafficLight> trafficLights = new ArrayList<>();
 	
 	@Override
 	public void create () {
@@ -35,23 +35,12 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		shapeRenderer = new ShapeRenderer();
 		trafficLightManager = new TrafficLightManager(trafficLights);
 		carsSpawnManager = new CarsSpawnManager();
-		//ped = new Pedestrian("ped.png", 2, 0, new Vector2(500, 500));
-		/*try {
-			//spawnCarsLeft();
-			//spawnCarsUp();
-			//spawnCarsRight();
-			//spawnCarsDown();
-			//spawnMid();
-		}catch (IOException e){
-			e.printStackTrace();
-		}*/
 	}
 
 	@Override
 	public void render () {
 		Gdx.gl.glClearColor(1, 1, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
 
 
 		batch.begin();
@@ -99,6 +88,8 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 			catch (TrafficSimulationException e){
 				System.out.println("" + e);
 				keyDown(Keys.LEFT);
+			}catch (CloneNotSupportedException e){
+				e.printStackTrace();
 			}
 
 		}
@@ -107,6 +98,8 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 				spawnCarsUp();
 			}catch (SpawnException e){
 				System.out.println(e + " " + e.getDirection() + ", " + e.getLane() + " juostoje.");
+			}catch (CloneNotSupportedException e){
+				e.printStackTrace();
 			}
 		}
 		if(keycode == Keys.RIGHT){
@@ -114,6 +107,8 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 				spawnCarsRight();
 			}catch (SpawnException e){
 				System.out.println(e + " " + e.getDirection() + ", " + e.getLane() + " juostoje.");
+			}catch (CloneNotSupportedException e){
+				e.printStackTrace();
 			}
 		}
 		if(keycode == Keys.DOWN){
@@ -121,6 +116,8 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 				spawnCarsDown();
 			}catch (SpawnException e){
 				System.out.println(e + " " + e.getDirection() + ", " + e.getLane() + " juostoje.");
+			}catch (CloneNotSupportedException e){
+				e.printStackTrace();
 			}
 		}
 		if(keycode == Keys.SPACE){
@@ -129,16 +126,32 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 			cars.get(2).setCarState(Car.CarState.TURNING);
 		}
 		if(keycode == Keys.A){
-			spawnPedestrianLeft();
+			try {
+				spawnPedestrianLeft();
+			}catch (CloneNotSupportedException e){
+				e.printStackTrace();
+			}
 		}
 		if(keycode == Keys.D){
-			spawnPedestrianRight();
+			try {
+				spawnPedestrianRight();
+			}catch (CloneNotSupportedException e){
+				e.printStackTrace();
+			}
 		}
 		if(keycode == Keys.W){
-			spawnPedestrianUp();
+			try {
+				spawnPedestrianUp();
+			}catch (CloneNotSupportedException e){
+				e.printStackTrace();
+			}
 		}
 		if(keycode == Keys.S){
-			spawnPedestrianDown();
+			try {
+				spawnPedestrianDown();
+			}catch (CloneNotSupportedException e){
+				e.printStackTrace();
+			}
 		}
 		return false;
 	}
@@ -194,180 +207,207 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		trafficLight.getSprite().setPosition(680, 220);
 	}
 
-	private void spawnPedestrianLeft(){
+	private void spawnPedestrianLeft() throws CloneNotSupportedException{
+		Pedestrian pedestrian = new Pedestrian("ped1.png", -1, 90, new Vector2(250, 1100), Pedestrian.PedestrianState.MOVE_Y, Pedestrian.PedestrianCommand.GO);
 		if(getRandomBetween2())
-			participant = new Pedestrian("ped1.png", -1, 90, new Vector2(250, 1100), Pedestrian.PedestrianState.MOVE_Y, Pedestrian.PedestrianCommand.GO);
-		else
-			participant = new Pedestrian("ped.png", 1, 90, new Vector2(250, -100), Pedestrian.PedestrianState.MOVE_Y, Pedestrian.PedestrianCommand.GO);
-
-		trafficParticipants.add(participant);
-		pedestrians.add((Pedestrian)participant);
-	}
-
-	private void spawnPedestrianRight(){
-		if(getRandomBetween2())
-			participant = new Pedestrian("ped.png", -1, 270, new Vector2(700, 1100), Pedestrian.PedestrianState.MOVE_Y, Pedestrian.PedestrianCommand.GO);
-		else
-			participant = new Pedestrian("ped1.png", 1, 270, new Vector2(700, -100), Pedestrian.PedestrianState.MOVE_Y, Pedestrian.PedestrianCommand.GO);
-
-		trafficParticipants.add(participant);
-		pedestrians.add((Pedestrian)participant);
-	}
-
-	private void spawnPedestrianUp(){
-		if(getRandomBetween2())
-			participant = new Pedestrian("ped1.png", -1, 0, new Vector2(1100, 700), Pedestrian.PedestrianState.MOVE_X, Pedestrian.PedestrianCommand.GO);
-		else
-			participant = new Pedestrian("ped.png", 1, 0, new Vector2(-100, 700), Pedestrian.PedestrianState.MOVE_X, Pedestrian.PedestrianCommand.GO);
-
-		trafficParticipants.add(participant);
-		pedestrians.add((Pedestrian)participant);
-	}
-
-	private void spawnPedestrianDown(){
-		if(getRandomBetween2())
-			participant = new Pedestrian("ped1.png", -1, 0, new Vector2(1100, 265), Pedestrian.PedestrianState.MOVE_X, Pedestrian.PedestrianCommand.GO);
-		else
-			participant = new Pedestrian("ped.png", 1, 0, new Vector2(-100, 265), Pedestrian.PedestrianState.MOVE_X, Pedestrian.PedestrianCommand.GO);
-
-		trafficParticipants.add(participant);
-		pedestrians.add((Pedestrian)participant);
-	}
-
-
-
-	public void spawnCarsLeft () throws TrafficSimulationException{
-		float randPos = -100+300*getRandom();
-		if(randPos > -50){
-			throw new TrafficSimulationException("Negalima pozicija");
+			pedestrian = (Pedestrian) pedestrian.clone();
+		else {
+			pedestrian = (Pedestrian) pedestrian.clone();
+			pedestrian.setVelocity(1);
+			pedestrian.setSprite("ped.png", new Vector2(250, -100));
 		}
+
+		trafficParticipants.add(pedestrian);
+		pedestrians.add(pedestrian);
+	}
+
+	private void spawnPedestrianRight() throws CloneNotSupportedException{
+		Pedestrian pedestrian = new Pedestrian("ped.png", -1, 270, new Vector2(700, 1100), Pedestrian.PedestrianState.MOVE_Y, Pedestrian.PedestrianCommand.GO);
+		if(getRandomBetween2())
+			pedestrian = (Pedestrian) pedestrian.clone();
+		else{
+			pedestrian = (Pedestrian) pedestrian.clone();
+			pedestrian.setVelocity(1);
+			pedestrian.setSprite("ped1.png", new Vector2(700, -100));
+		}
+
+		trafficParticipants.add(pedestrian);
+		pedestrians.add(pedestrian);
+	}
+
+	private void spawnPedestrianUp() throws CloneNotSupportedException{
+		Pedestrian pedestrian = new Pedestrian("ped1.png", -1, 0, new Vector2(1100, 700), Pedestrian.PedestrianState.MOVE_X, Pedestrian.PedestrianCommand.GO);
+		if(getRandomBetween2())
+			pedestrian = (Pedestrian) pedestrian.clone();
+		else {
+			pedestrian = (Pedestrian) pedestrian.clone();
+			pedestrian.setVelocity(1);
+			pedestrian.setSprite("ped.png", new Vector2(-100, 700));
+		}
+
+		trafficParticipants.add(pedestrian);
+		pedestrians.add(pedestrian);
+	}
+
+	private void spawnPedestrianDown() throws CloneNotSupportedException{
+		Pedestrian pedestrian = new Pedestrian("ped1.png", -1, 0, new Vector2(1100, 265), Pedestrian.PedestrianState.MOVE_X, Pedestrian.PedestrianCommand.GO);
+		if(getRandomBetween2())
+			pedestrian = (Pedestrian) pedestrian.clone();
+		else{
+			pedestrian = (Pedestrian) pedestrian.clone();
+			pedestrian.setVelocity(1);
+			pedestrian.setSprite("ped.png", new Vector2(-100, 265));
+		}
+
+		trafficParticipants.add(pedestrian);
+		pedestrians.add(pedestrian);
+	}
+
+
+
+	public void spawnCarsLeft () throws TrafficSimulationException, CloneNotSupportedException{
+		Car car;
+		float randPos = -100-300*getRandom();
 		Car lastCar = carsSpawnManager.getLeftLast(0);
 		if(lastCar != null && randPos + 120 > lastCar.getSprite().getX()) {
 			throw new SpawnException("kairėje", 1);
 		}
-		participant = new Car(getRandomCarImage(), 0, 0, new Vector2(randPos, 445), Car.CarDirection.RIGHT, Car.CarState.MOVE_X, lastCar);
-		trafficParticipants.add(participant);
-		cars.add((Car) participant);
-		carsSpawnManager.setLeftLast(0, (Car) participant);
+		car = new Car(getRandomCarImage(), 0, 0, new Vector2(randPos, 445), Car.CarDirection.RIGHT, Car.CarState.MOVE_X, lastCar);
+		trafficParticipants.add(car);
+		cars.add(car);
+		carsSpawnManager.setLeftLast(0, car);
 		//-----------------KITA JUOSTA-------------------
 		randPos = -100-300*getRandom();
-		if(randPos > -50){
-			throw new TrafficSimulationException("Negalima pozicija");
-		}
 		lastCar = carsSpawnManager.getLeftLast(1);
 		if(lastCar != null && randPos + 120 > lastCar.getSprite().getX()) {
 			throw new SpawnException("kairėje", 2);
 		}
-		participant = new Car(getRandomCarImage(), 0, 0, new Vector2(randPos, 385), Car.CarDirection.RIGHT, Car.CarState.MOVE_X, lastCar);
-		trafficParticipants.add(participant);
-		cars.add((Car) participant);
-		carsSpawnManager.setLeftLast(1, (Car) participant);
+		car = (Car) car.clone();
+		car.setSprite(getRandomCarImage(), new Vector2(randPos, 385));
+		car.setAhead(lastCar);
+		trafficParticipants.add(car);
+		cars.add(car);
+		carsSpawnManager.setLeftLast(1, car);
 		//-----------------KITA JUOSTA-------------------
 		randPos = -100-300*getRandom();
-		if(randPos > -50){
-			throw new TrafficSimulationException("Negalima pozicija");
-		}
 		lastCar = carsSpawnManager.getLeftLast(2);
 		if(lastCar != null && randPos + 120 > lastCar.getSprite().getX()) {
 			throw new SpawnException("kairėje", 3);
 		}
-		participant = new Car(getRandomCarImage(), 0, 0, new Vector2(randPos, 325), Car.CarDirection.RIGHT, Car.CarState.MOVE_X, lastCar);
-		trafficParticipants.add(participant);
-		cars.add((Car) participant);
-		carsSpawnManager.setLeftLast(2, (Car) participant);
+		car = (Car) car.clone();
+		car.setSprite(getRandomCarImage(), new Vector2(randPos, 325));
+		car.setAhead(lastCar);
+		trafficParticipants.add(car);
+		cars.add(car);
+		carsSpawnManager.setLeftLast(2, car);
 	}
-	public void spawnCarsUp () throws SpawnException{
+	public void spawnCarsUp () throws SpawnException, CloneNotSupportedException{
+		Car car;
 		float randPos = 1100+300*getRandom();
 		Car lastCar = carsSpawnManager.getUpLast(0);
 		if(lastCar != null && randPos - 120 < lastCar.getSprite().getY()) {
 			throw new SpawnException("viršuje" , 1);
 		}
-		participant = new Car(getRandomCarImage(), 0, 270, new Vector2(425, randPos), Car.CarDirection.DOWN, Car.CarState.MOVE_Y, lastCar);
-		trafficParticipants.add(participant);
-		cars.add((Car) participant);
-		carsSpawnManager.setUpLast(0, (Car) participant);
+		car = new Car(getRandomCarImage(), 0, 270, new Vector2(425, randPos), Car.CarDirection.DOWN, Car.CarState.MOVE_Y, lastCar);
+		trafficParticipants.add(car);
+		cars.add(car);
+		carsSpawnManager.setUpLast(0, car);
 		//-----------------KITA JUOSTA-------------------
 		randPos = 1100+300*getRandom();
 		lastCar = carsSpawnManager.getUpLast(1);
 		if(lastCar != null && randPos - 120 < lastCar.getSprite().getY()) {
 			throw new SpawnException("viršuje" , 2);
 		}
-		participant = new Car(getRandomCarImage(), 0, 270, new Vector2(365, randPos), Car.CarDirection.DOWN, Car.CarState.MOVE_Y, lastCar);
-		trafficParticipants.add(participant);
-		cars.add((Car) participant);
-		carsSpawnManager.setUpLast(1, (Car) participant);
+		car = (Car) car.clone();
+		car.setSprite(getRandomCarImage(), new Vector2(365, randPos));
+		car.setAhead(lastCar);
+		trafficParticipants.add(car);
+		cars.add(car);
+		carsSpawnManager.setUpLast(1, car);
 		//-----------------KITA JUOSTA-------------------
 		randPos = 1100+300*getRandom();
 		lastCar = carsSpawnManager.getUpLast(2);
 		if(lastCar != null && randPos - 120 < lastCar.getSprite().getY()) {
 			throw new SpawnException("viršuje" , 3);
 		}
-		participant = new Car(getRandomCarImage(), 0, 270, new Vector2(305, randPos), Car.CarDirection.DOWN, Car.CarState.MOVE_Y, lastCar);
-		trafficParticipants.add(participant);
-		cars.add((Car) participant);
-		carsSpawnManager.setUpLast(2, (Car) participant);
+		car = (Car) car.clone();
+		car.setSprite(getRandomCarImage(), new Vector2(305, randPos));
+		car.setAhead(lastCar);
+		trafficParticipants.add(car);
+		cars.add(car);
+		carsSpawnManager.setUpLast(2, car);
 	}
-	public void spawnCarsRight () throws SpawnException{
+	public void spawnCarsRight () throws SpawnException, CloneNotSupportedException{
+		Car car;
 		float randPos = 1100+300*getRandom();
 		Car lastCar = carsSpawnManager.getRightLast(0);
 		if(lastCar != null && randPos - 120 < lastCar.getSprite().getX()) {
 			throw new SpawnException("dešinėje" , 1);
 		}
-		participant = new Car(getRandomCarImage(), 0, 180, new Vector2(randPos, 510), Car.CarDirection.LEFT, Car.CarState.MOVE_X, lastCar);
-		trafficParticipants.add(participant);
-		cars.add((Car) participant);
-		carsSpawnManager.setRightLast(0, (Car) participant);
+		car = new Car(getRandomCarImage(), 0, 180, new Vector2(randPos, 510), Car.CarDirection.LEFT, Car.CarState.MOVE_X, lastCar);
+		trafficParticipants.add(car);
+		cars.add(car);
+		carsSpawnManager.setRightLast(0, car);
 		//-----------------KITA JUOSTA-------------------
 		randPos = 1100+300*getRandom();
 		lastCar = carsSpawnManager.getRightLast(1);
 		if(lastCar != null && randPos - 120 < lastCar.getSprite().getX()) {
 			throw new SpawnException("dešinėje" , 2);
 		}
-		participant = new Car(getRandomCarImage(), 0, 180, new Vector2(randPos, 570), Car.CarDirection.LEFT, Car.CarState.MOVE_X, lastCar);
-		trafficParticipants.add(participant);
-		cars.add((Car) participant);
-		carsSpawnManager.setRightLast(1, (Car) participant);
+		car = (Car) car.clone();
+		car.setSprite(getRandomCarImage(), new Vector2(randPos, 570));
+		car.setAhead(lastCar);
+		trafficParticipants.add(car);
+		cars.add(car);
+		carsSpawnManager.setRightLast(1, car);
 		//-----------------KITA JUOSTA-------------------
 		randPos = 1100+300*getRandom();
 		lastCar = carsSpawnManager.getRightLast(2);
 		if(lastCar != null && randPos - 120 < lastCar.getSprite().getX()) {
 			throw new SpawnException("dešinėje" , 3);
 		}
-		participant = new Car(getRandomCarImage(), 0, 180, new Vector2(randPos, 630), Car.CarDirection.LEFT, Car.CarState.MOVE_X, lastCar);
-		trafficParticipants.add(participant);
-		cars.add((Car) participant);
-		carsSpawnManager.setRightLast(2, (Car) participant);
+		car = (Car) car.clone();
+		car.setSprite(getRandomCarImage(), new Vector2(randPos, 630));
+		car.setAhead(lastCar);
+		trafficParticipants.add(car);
+		cars.add(car);
+		carsSpawnManager.setRightLast(2, car);
 	}
-	public void spawnCarsDown () throws SpawnException{
+	public void spawnCarsDown () throws SpawnException, CloneNotSupportedException{
+		Car car;
 		float randPos = -100-300*getRandom();
 		Car lastCar = carsSpawnManager.getDownLast(0);
 		if(lastCar != null && randPos + 120 > lastCar.getSprite().getY()) {
 			throw new SpawnException("apačioje" , 1);
 		}
-		participant = new Car(getRandomCarImage(), 0, 90, new Vector2(485, randPos), Car.CarDirection.UP, Car.CarState.MOVE_Y, lastCar);
-		trafficParticipants.add(participant);
-		cars.add((Car) participant);
-		carsSpawnManager.setDownLast(0, (Car) participant);
+		car = new Car(getRandomCarImage(), 0, 90, new Vector2(485, randPos), Car.CarDirection.UP, Car.CarState.MOVE_Y, lastCar);
+		trafficParticipants.add(car);
+		cars.add(car);
+		carsSpawnManager.setDownLast(0, car);
 		//-----------------KITA JUOSTA-------------------
 		randPos = -100-300*getRandom();
 		lastCar = carsSpawnManager.getDownLast(1);
 		if(lastCar != null && randPos + 120 > lastCar.getSprite().getY()) {
 			throw new SpawnException("apačioje" , 2);
 		}
-		participant = new Car(getRandomCarImage(), 0, 90, new Vector2(545, randPos), Car.CarDirection.UP, Car.CarState.MOVE_Y, lastCar);
-		trafficParticipants.add(participant);
-		cars.add((Car) participant);
-		carsSpawnManager.setDownLast(1, (Car) participant);
+		car = (Car) car.clone();
+		car.setSprite(getRandomCarImage(), new Vector2(545, randPos));
+		car.setAhead(lastCar);
+		trafficParticipants.add(car);
+		cars.add(car);
+		carsSpawnManager.setDownLast(1, car);
 		//-----------------KITA JUOSTA-------------------
 		randPos = -100-300*getRandom();
 		lastCar = carsSpawnManager.getDownLast(2);
 		if(lastCar != null && randPos + 120 > lastCar.getSprite().getY()) {
 			throw new SpawnException("apačioje" , 3);
 		}
-		participant = new Car(getRandomCarImage(), 0, 90, new Vector2(605, randPos), Car.CarDirection.UP, Car.CarState.MOVE_Y, lastCar);
-		trafficParticipants.add(participant);
-		cars.add((Car) participant);
-		carsSpawnManager.setDownLast(2, (Car) participant);
+		car = (Car) car.clone();
+		car.setSprite(getRandomCarImage(), new Vector2(605, randPos));
+		car.setAhead(lastCar);
+		trafficParticipants.add(car);
+		cars.add(car);
+		carsSpawnManager.setDownLast(2, car);
 	}
 
 

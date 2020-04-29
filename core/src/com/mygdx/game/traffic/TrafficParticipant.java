@@ -3,7 +3,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 
-public abstract class TrafficParticipant implements Movable {
+public abstract class TrafficParticipant implements Movable{
     
     protected Sprite sprite;
     protected float velocity;
@@ -12,6 +12,10 @@ public abstract class TrafficParticipant implements Movable {
     protected boolean needToAccelerate = false;
 
     private static int participantsCount = 0;
+
+    public Object clone() throws CloneNotSupportedException{
+        return super.clone();
+    }
 
     public TrafficParticipant(){
         this(new Sprite(new Texture("car1.png")), 0, 0, new Vector2(0, 0));
@@ -24,6 +28,7 @@ public abstract class TrafficParticipant implements Movable {
         this.sprite.setRotation(angle);
         participantsCount++;
     }
+
 
 
     public final void accelerate(){
@@ -49,7 +54,12 @@ public abstract class TrafficParticipant implements Movable {
     public void setSprite(String imageSrc) {
         sprite = new Sprite(new Texture(imageSrc));
     }
-
+    public void setSprite(String imageSrc, Vector2 pos){
+        float tempAngle = sprite.getRotation();
+        sprite = new Sprite(new Texture(imageSrc));
+        sprite.setPosition(pos.x, pos.y);
+        sprite.setRotation(angle);
+    }
     public float getVelocity() {
         return velocity;
     }
@@ -65,6 +75,11 @@ public abstract class TrafficParticipant implements Movable {
     public int getCount(){
         return participantsCount;
     }
+    public void setPosition(Vector2 pos){
+        getSprite().setPosition(pos.x, pos.y);
+    }
+
+    public abstract void setAhead(TrafficParticipant ahead);
 
 
     @Override
