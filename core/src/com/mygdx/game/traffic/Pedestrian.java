@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 
-public class Pedestrian extends TrafficParticipant{
+public class Pedestrian extends TrafficParticipant implements Cloneable{
 
     public enum PedestrianState{STANDING, MOVE_X, MOVE_Y}
     public enum PedestrianCommand{GO, STOP}

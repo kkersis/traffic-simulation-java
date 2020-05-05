@@ -209,9 +209,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
 	private void spawnPedestrianLeft() throws CloneNotSupportedException{
 		Pedestrian pedestrian = new Pedestrian("ped1.png", -1, 90, new Vector2(250, 1100), Pedestrian.PedestrianState.MOVE_Y, Pedestrian.PedestrianCommand.GO);
-		if(getRandomBetween2())
-			pedestrian = (Pedestrian) pedestrian.clone();
-		else {
+		if(getRandomBetween2()) {
 			pedestrian = (Pedestrian) pedestrian.clone();
 			pedestrian.setVelocity(1);
 			pedestrian.setSprite("ped.png", new Vector2(250, -100));
@@ -221,11 +219,9 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		pedestrians.add(pedestrian);
 	}
 
-	private void spawnPedestrianRight() throws CloneNotSupportedException{
+	private void spawnPedestrianRight() throws CloneNotSupportedException {
 		Pedestrian pedestrian = new Pedestrian("ped.png", -1, 270, new Vector2(700, 1100), Pedestrian.PedestrianState.MOVE_Y, Pedestrian.PedestrianCommand.GO);
-		if(getRandomBetween2())
-			pedestrian = (Pedestrian) pedestrian.clone();
-		else{
+		if (getRandomBetween2()){
 			pedestrian = (Pedestrian) pedestrian.clone();
 			pedestrian.setVelocity(1);
 			pedestrian.setSprite("ped1.png", new Vector2(700, -100));
@@ -235,11 +231,9 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		pedestrians.add(pedestrian);
 	}
 
-	private void spawnPedestrianUp() throws CloneNotSupportedException{
+	private void spawnPedestrianUp() throws CloneNotSupportedException {
 		Pedestrian pedestrian = new Pedestrian("ped1.png", -1, 0, new Vector2(1100, 700), Pedestrian.PedestrianState.MOVE_X, Pedestrian.PedestrianCommand.GO);
-		if(getRandomBetween2())
-			pedestrian = (Pedestrian) pedestrian.clone();
-		else {
+		if (getRandomBetween2()){
 			pedestrian = (Pedestrian) pedestrian.clone();
 			pedestrian.setVelocity(1);
 			pedestrian.setSprite("ped.png", new Vector2(-100, 700));
@@ -249,11 +243,9 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		pedestrians.add(pedestrian);
 	}
 
-	private void spawnPedestrianDown() throws CloneNotSupportedException{
+	private void spawnPedestrianDown() throws CloneNotSupportedException {
 		Pedestrian pedestrian = new Pedestrian("ped1.png", -1, 0, new Vector2(1100, 265), Pedestrian.PedestrianState.MOVE_X, Pedestrian.PedestrianCommand.GO);
-		if(getRandomBetween2())
-			pedestrian = (Pedestrian) pedestrian.clone();
-		else{
+		if (getRandomBetween2()){
 			pedestrian = (Pedestrian) pedestrian.clone();
 			pedestrian.setVelocity(1);
 			pedestrian.setSprite("ped.png", new Vector2(-100, 265));
