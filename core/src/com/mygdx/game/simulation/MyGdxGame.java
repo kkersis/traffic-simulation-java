@@ -21,11 +21,12 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	private ShapeRenderer shapeRenderer;
 	private TrafficLightManager trafficLightManager;
 	private CarsSpawnManager carsSpawnManager;
-	final private ArrayList<Car> cars = new ArrayList<>();
-	final private ArrayList<Pedestrian> pedestrians = new ArrayList<>();
-	final private ArrayList<TrafficParticipant> trafficParticipants = new ArrayList<>();
-	final private ArrayList<TrafficLight> trafficLights = new ArrayList<>();
-	
+	private ArrayList<Car> cars = new ArrayList<>();
+	private ArrayList<Pedestrian> pedestrians = new ArrayList<>();
+	private ArrayList<TrafficParticipant> trafficParticipants = new ArrayList<>();
+	private ArrayList<TrafficLight> trafficLights = new ArrayList<>();
+	private SaveData data = new SaveData();
+
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
@@ -153,8 +154,38 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 				e.printStackTrace();
 			}
 		}
+		if(keycode == Keys.P){	//saves
+			data.setData(this.trafficLightManager, this.carsSpawnManager, this.cars, this.pedestrians, this.trafficParticipants);
+			WritingThread writingThread = new WritingThread(data);
+			writingThread.start();
+		}
+		if(keycode == Keys.L){	//loads
+			ReadingThread readingThread = new ReadingThread();
+			readingThread.start();
+			try {
+				readingThread.join();
+			}catch (InterruptedException e){
+				e.printStackTrace();
+			}
+
+			SaveData data = readingThread.getData();
+			carsSpawnManager = data.getCarsSpawnManager();
+			cars = data.getCars();
+			pedestrians = data.getPedestrians();
+			trafficParticipants = data.getTrafficParticipants();
+			for(TrafficParticipant participant : trafficParticipants){
+				participant.updateSprite();
+			}
+			trafficLightManager = new TrafficLightManager(trafficLights);
+			trafficLightManager.setCounter(data.getTrafficLightManager().getCounter());
+			trafficLightManager.setNextLightCounter(data.getTrafficLightManager().getNextLightCounter());
+			trafficLightManager.setState(data.getTrafficLightManager().getState());
+
+
+		}
 		return false;
 	}
+
 
 	private void paintLights(ShapeRenderer shapeRenderer){
 		TrafficLight tL = trafficLights.get(0);

@@ -3,9 +3,14 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 
-public abstract class TrafficParticipant implements Movable{
-    
-    protected Sprite sprite;
+import java.io.Serializable;
+
+public abstract class TrafficParticipant implements Movable, Serializable {
+
+    transient protected Sprite sprite;
+    protected String imageSrc = "car1.png";
+    protected float posX;
+    protected float posY;
     protected float velocity;
     protected float angle;
     protected float maxVelocity;
@@ -29,7 +34,11 @@ public abstract class TrafficParticipant implements Movable{
         participantsCount++;
     }
 
-
+    public final void updateSprite(){
+        this.sprite = new Sprite(new Texture(this.imageSrc));
+        this.sprite.setPosition(posX, posY);
+        this.sprite.setRotation(this.angle);
+    }
 
     public final void accelerate(){
         if(Math.abs(velocity) >= maxVelocity){
@@ -59,6 +68,7 @@ public abstract class TrafficParticipant implements Movable{
         sprite = new Sprite(new Texture(imageSrc));
         sprite.setPosition(pos.x, pos.y);
         sprite.setRotation(angle);
+        this.imageSrc = imageSrc;
     }
     public float getVelocity() {
         return velocity;

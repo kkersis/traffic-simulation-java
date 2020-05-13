@@ -2,8 +2,10 @@ package com.mygdx.game.simulation;
 
 import com.mygdx.game.traffic.Car;
 
+import java.io.Serializable;
 
-public class CarsSpawnManager {
+
+public class CarsSpawnManager implements Serializable {
     final private Car[] leftLast = {null, null, null};    //left, mid, right
     final private Car[] upLast = {null, null, null};    //left, mid, right
     final private Car[] rightLast = {null, null, null};    //left, mid, right

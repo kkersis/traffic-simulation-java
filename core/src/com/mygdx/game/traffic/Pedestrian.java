@@ -4,7 +4,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 
-public class Pedestrian extends TrafficParticipant implements Cloneable{
+import java.io.Serializable;
+
+public class Pedestrian extends TrafficParticipant implements Cloneable, Serializable {
 
     public enum PedestrianState{STANDING, MOVE_X, MOVE_Y}
     public enum PedestrianCommand{GO, STOP}
@@ -29,6 +31,7 @@ public class Pedestrian extends TrafficParticipant implements Cloneable{
     public Pedestrian(String imageSrc, float velocity, float angle, Vector2 pedestrianPos, PedestrianState pedestrianState,
                       PedestrianCommand pedestrianCommand){
         this(new Sprite(new Texture(imageSrc)), velocity, angle, pedestrianPos, pedestrianState, pedestrianCommand);
+        this.imageSrc = imageSrc;
     }
     public Pedestrian(){
         this(new Sprite(new Texture("ped.png")), 0, 0, new Vector2(0, 0), PedestrianState.MOVE_X, PedestrianCommand.GO);
@@ -91,5 +94,7 @@ public class Pedestrian extends TrafficParticipant implements Cloneable{
 
 
         }
+        this.posX = sprite.getX();
+        this.posY = sprite.getY();
     }
 }

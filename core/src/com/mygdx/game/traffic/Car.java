@@ -4,9 +4,11 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 
+import java.io.Serializable;
+
 import static java.lang.Math.*;
 
-public class Car extends TrafficParticipant implements Steerable, Cloneable{
+public class Car extends TrafficParticipant implements Steerable, Cloneable, Serializable {
     public enum CarDirection{LEFT, RIGHT, UP, DOWN, DOWN_LEFT,RIGHT_DOWN,
         LEFT_UP, UP_LEFT, UP_RIGHT, RIGHT_UP, DOWN_RIGHT, LEFT_DOWN}
     public enum CarState{BRAKE, MOVE_X, MOVE_Y, TURNING}
@@ -79,6 +81,7 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable{
     public Car(String imageSrc, float velocity, float angle, Vector2 carPos, CarDirection carDirection,
                CarState carState, Car carAhead){
         this(new Sprite(new Texture(imageSrc)), velocity, angle, carPos, carDirection, carState, carAhead);
+        this.imageSrc = imageSrc;
     }
     public Car(){
         this("car1.png", 0, 0, new Vector2(0, 0), CarDirection.LEFT, CarState.BRAKE, null);
@@ -258,6 +261,9 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable{
                         break;
                 }
         }
+
+        this.posX = sprite.getX();  //issaugojimui
+        this.posY = sprite.getY();  //issaugojimui
     }
 
 

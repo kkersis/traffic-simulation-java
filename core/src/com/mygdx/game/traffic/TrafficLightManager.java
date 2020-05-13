@@ -2,21 +2,51 @@ package com.mygdx.game.traffic;
 
 import com.badlogic.gdx.graphics.Color;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class TrafficLightManager {
+public class TrafficLightManager implements Serializable {
 
     private ArrayList<TrafficLight> trafficLights;
     private int counter = 0;
     private int nextLightCounter = 0;
-    private enum TrafficLightState{STRAIGHT_AND_RIGHT_VERTICAL, STRAIGHT_AND_RIGHT_HORIZONTAL, LEFT_VERTICAL, LEFT_HORIZONTAL};
-    private static final Color RED = Color.RED;
-    private static final Color GREEN = Color.GREEN;
+    public enum TrafficLightState{STRAIGHT_AND_RIGHT_VERTICAL, STRAIGHT_AND_RIGHT_HORIZONTAL, LEFT_VERTICAL, LEFT_HORIZONTAL};
+    private TrafficLightState state;
+    transient private static final Color RED = Color.RED;
+    transient private static final Color GREEN = Color.GREEN;
     private static final int LIGHT_INTERVAL = 100;
 
 
     public TrafficLightManager(ArrayList<TrafficLight> trafficLights){
         this.trafficLights = trafficLights;
+    }
+
+    public void setState(TrafficLightState state){
+        change(state);
+    }
+
+    public TrafficLightState getState(){
+        return state;
+    }
+
+    public void setLights(ArrayList<TrafficLight> trafficLights) {
+        this.trafficLights = trafficLights;
+    }
+
+    public void setCounter(int counter) {
+        this.counter = counter;
+    }
+
+    public void setNextLightCounter(int nextLightCounter) {
+        this.nextLightCounter = nextLightCounter;
+    }
+
+    public int getCounter() {
+        return counter;
+    }
+
+    public int getNextLightCounter() {
+        return nextLightCounter;
     }
 
     private void change(TrafficLightState nextState){
@@ -56,15 +86,19 @@ public class TrafficLightManager {
             switch (nextLightCounter){
                 case 0:
                     change(TrafficLightState.STRAIGHT_AND_RIGHT_VERTICAL);
+                    state = TrafficLightState.STRAIGHT_AND_RIGHT_VERTICAL;
                     break;
                 case 1:
                     change(TrafficLightState.STRAIGHT_AND_RIGHT_HORIZONTAL);
+                    state = TrafficLightState.STRAIGHT_AND_RIGHT_HORIZONTAL;
                     break;
                 case 2:
                     change(TrafficLightState.LEFT_VERTICAL);
+                    state = TrafficLightState.LEFT_VERTICAL;
                     break;
                 case 3:
                     change(TrafficLightState.LEFT_HORIZONTAL);
+                    state = TrafficLightState.LEFT_HORIZONTAL;
                     break;
             }
             nextLightCounter++;

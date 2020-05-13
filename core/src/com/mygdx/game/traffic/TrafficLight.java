@@ -4,11 +4,13 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
-public class TrafficLight{
-    private Sprite sprite;
+import java.io.Serializable;
+
+public class TrafficLight implements Serializable {
+    transient private Sprite sprite;
     private float angle;
-    private Color straightRightColor;
-    private Color leftColor;
+    transient private Color straightRightColor;
+    transient private Color leftColor;
 
     public TrafficLight(){
         sprite = new Sprite(new Texture("trafficLight.png"));
