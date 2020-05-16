@@ -26,6 +26,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	private ArrayList<TrafficParticipant> trafficParticipants = new ArrayList<>();
 	private ArrayList<TrafficLight> trafficLights = new ArrayList<>();
 	private SaveData data = new SaveData();
+	private PedestriansCrossingManager pedCrossingManager = new PedestriansCrossingManager();
 
 	@Override
 	public void create () {
@@ -49,6 +50,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		batch.end();
 
 		batch.begin();
+
 		for(TrafficParticipant p : trafficParticipants){
 			p.move();
 			p.getSprite().draw(batch);
@@ -63,9 +65,11 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
 		batch.begin();
 		for(TrafficLight tL : trafficLights){
-			tL.getSprite().draw(batch);
+				tL.getSprite().draw(batch);
 		}
 		batch.end();
+
+		pedCrossingManager.check();
 
 	}
 
@@ -122,9 +126,8 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 			}
 		}
 		if(keycode == Keys.SPACE){
-			cars.get(2).setCarDirection(Car.CarDirection.RIGHT_UP);
-			cars.get(2).setCommand(Car.Command.TURN_LEFT);
-			cars.get(2).setCarState(Car.CarState.TURNING);
+			pedCrossingManager.isDownLEFT=!pedCrossingManager.isDownLEFT;
+			System.out.println(pedCrossingManager.isDownLEFT);
 		}
 		if(keycode == Keys.A){
 			try {
@@ -246,6 +249,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 			pedestrian.setSprite("ped.png", new Vector2(250, -100));
 		}
 
+		pedCrossingManager.addLeft(pedestrian);
 		trafficParticipants.add(pedestrian);
 		pedestrians.add(pedestrian);
 	}
@@ -258,6 +262,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 			pedestrian.setSprite("ped1.png", new Vector2(700, -100));
 		}
 
+		pedCrossingManager.addRight(pedestrian);
 		trafficParticipants.add(pedestrian);
 		pedestrians.add(pedestrian);
 	}
@@ -270,6 +275,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 			pedestrian.setSprite("ped.png", new Vector2(-100, 700));
 		}
 
+		pedCrossingManager.addUp(pedestrian);
 		trafficParticipants.add(pedestrian);
 		pedestrians.add(pedestrian);
 	}
@@ -282,6 +288,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 			pedestrian.setSprite("ped.png", new Vector2(-100, 265));
 		}
 
+		pedCrossingManager.addDown(pedestrian);
 		trafficParticipants.add(pedestrian);
 		pedestrians.add(pedestrian);
 	}
@@ -295,7 +302,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		if(lastCar != null && randPos + 120 > lastCar.getSprite().getX()) {
 			throw new SpawnException("kairėje", 1);
 		}
-		car = new Car(getRandomCarImage(), 0, 0, new Vector2(randPos, 445), Car.CarDirection.RIGHT, Car.CarState.MOVE_X, lastCar, trafficLights, 1);
+		car = new Car(getRandomCarImage(), 0, 0, new Vector2(randPos, 445), Car.CarDirection.RIGHT, Car.CarState.MOVE_X, lastCar, trafficLights, 1, pedCrossingManager);
 		trafficParticipants.add(car);
 		cars.add(car);
 		carsSpawnManager.setLeftLast(0, car);
@@ -333,7 +340,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		if(lastCar != null && randPos - 120 < lastCar.getSprite().getY()) {
 			throw new SpawnException("viršuje" , 1);
 		}
-		car = new Car(getRandomCarImage(), 0, 270, new Vector2(425, randPos), Car.CarDirection.DOWN, Car.CarState.MOVE_Y, lastCar, trafficLights, 1);
+		car = new Car(getRandomCarImage(), 0, 270, new Vector2(425, randPos), Car.CarDirection.DOWN, Car.CarState.MOVE_Y, lastCar, trafficLights, 1, pedCrossingManager);
 		trafficParticipants.add(car);
 		cars.add(car);
 		carsSpawnManager.setUpLast(0, car);
@@ -371,7 +378,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		if(lastCar != null && randPos - 120 < lastCar.getSprite().getX()) {
 			throw new SpawnException("dešinėje" , 1);
 		}
-		car = new Car(getRandomCarImage(), 0, 180, new Vector2(randPos, 510), Car.CarDirection.LEFT, Car.CarState.MOVE_X, lastCar, trafficLights, 1);
+		car = new Car(getRandomCarImage(), 0, 180, new Vector2(randPos, 510), Car.CarDirection.LEFT, Car.CarState.MOVE_X, lastCar, trafficLights, 1, pedCrossingManager);
 		trafficParticipants.add(car);
 		cars.add(car);
 		carsSpawnManager.setRightLast(0, car);
@@ -409,7 +416,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		if(lastCar != null && randPos + 120 > lastCar.getSprite().getY()) {
 			throw new SpawnException("apačioje" , 1);
 		}
-		car = new Car(getRandomCarImage(), 0, 90, new Vector2(485, randPos), Car.CarDirection.UP, Car.CarState.MOVE_Y, lastCar, trafficLights, 1);
+		car = new Car(getRandomCarImage(), 0, 90, new Vector2(485, randPos), Car.CarDirection.UP, Car.CarState.MOVE_Y, lastCar, trafficLights, 1, pedCrossingManager);
 		trafficParticipants.add(car);
 		cars.add(car);
 		carsSpawnManager.setDownLast(0, car);

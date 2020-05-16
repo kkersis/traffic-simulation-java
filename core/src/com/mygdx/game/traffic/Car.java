@@ -16,6 +16,11 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
     public enum CarState{BRAKE, MOVE_X, MOVE_Y, TURNING}
     public enum Command{GO_STRAIGHT, TURN_LEFT, TURN_RIGHT}
 
+    //******* bus nesamoniu kai masina viena laukia kol praeis pestysis o kita uzvazios ant jos tai nzn kaip nors padaryti kad checkintu ar yra toj sankryzoj masinu
+    //ir jei yra tegu kitos nevaziuoja.
+
+    //KARTAIS MASINOS ATSISTOJA TOLI VIENOS NUO KITOS KAI KITA ISWAITING, TAI KIEKVIENAME IFE KUR NAUDOJAME CARAHAEDWAITING GAL REIKTU PAKEIST
+    //I KAZKA TOKIO KAIP CARAHEADWAITINGNEARBY
 
     private static int carCount = 0;
     private CarDirection carDirection;
@@ -29,6 +34,8 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
     private ArrayList<TrafficLight> trafficLights;
     private int lane;
     private boolean madeTurn = false;
+    private PedestriansCrossingManager pedCrossingManager;
+    private boolean isWaiting;
 
 
     @Override
@@ -39,6 +46,9 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
         }
         if(trafficLights != null){
             car.setLights(trafficLights);
+        }
+        if(pedCrossingManager != null){
+            car.setCrossingManager(pedCrossingManager);
         }
         return car;
     }
@@ -76,7 +86,7 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
 
 
     public Car(Sprite sprite, float velocity, float angle, Vector2 carPos, CarDirection carDirection,
-               CarState carState, Car carAhead, ArrayList<TrafficLight> trafficLights, int lane) {
+               CarState carState, Car carAhead, ArrayList<TrafficLight> trafficLights, int lane, PedestriansCrossingManager pedestriansCrossingManager) {
         super(sprite, velocity, angle, carPos);
         this.carDirection = carDirection;
         this.carState = carState;
@@ -84,17 +94,18 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
         this.carAhead = carAhead;
         this.trafficLights = trafficLights;
         this.lane = lane;
+        this.pedCrossingManager = pedestriansCrossingManager;
         maxVelocity = 8f;
         carCount++;
         if(velocity == 0) super.velocity = maxVelocity;
     }
     public Car(String imageSrc, float velocity, float angle, Vector2 carPos, CarDirection carDirection,
-               CarState carState, Car carAhead, ArrayList<TrafficLight> trafficLights, int lane){
-        this(new Sprite(new Texture(imageSrc)), velocity, angle, carPos, carDirection, carState, carAhead, trafficLights, lane);
+               CarState carState, Car carAhead, ArrayList<TrafficLight> trafficLights, int lane, PedestriansCrossingManager pedestriansCrossingManager){
+        this(new Sprite(new Texture(imageSrc)), velocity, angle, carPos, carDirection, carState, carAhead, trafficLights, lane, pedestriansCrossingManager);
         this.imageSrc = imageSrc;
     }
     public Car(){
-        this("car1.png", 0, 0, new Vector2(0, 0), CarDirection.LEFT, CarState.BRAKE, null, null, 1);
+        this("car1.png", 0, 0, new Vector2(0, 0), CarDirection.LEFT, CarState.BRAKE, null, null, 1, null);
     }
 
 
@@ -144,6 +155,10 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
         this.lane = lane;
     }
 
+    public void setCrossingManager(PedestriansCrossingManager pedCrossingManager){
+        this.pedCrossingManager = pedCrossingManager;
+    }
+
     @Override
     public String toString() {
         return super.toString() + "Car{" +
@@ -167,6 +182,12 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
         else return y2 <= posY && posY <= y1;
     }
 
+    private boolean carAheadWaiting(){
+        if(carAhead != null){
+            return carAhead.isWaiting;
+        }
+        return false;
+    }
 
     public void move() {
 
@@ -177,6 +198,7 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
 
         TrafficLight trafficLight;
         float tLPos;
+        //isWaiting = false;
 
         switch(carState) {
             case BRAKE:
@@ -187,18 +209,13 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
                         velocity = -Math.abs(velocity);
                         trafficLight = trafficLights.get(2);
                         tLPos = trafficLight.getSprite().getX();
-                        if(carAhead != null){
-                            if(carPosBetweenX(carAhead.posX+50, carAhead.posX+110)){
-                                velocity = 0;
-                            }
-                        }
                         if(!madeTurn) {
                             switch (lane) {
                                 case 1:
-                                    if (carPosBetweenX(tLPos + 30, tLPos + 40) && trafficLight.getLeftColor() == Color.RED) {
+                                    if (carPosBetweenX(tLPos + 30, tLPos + 40) && (trafficLight.getLeftColor() == Color.RED || pedCrossingManager.isRightUP())) {
                                         velocity = 0;
                                     }
-                                    if (velocity == 0 && trafficLight.getLeftColor() == Color.GREEN) {
+                                    if (velocity == 0 && trafficLight.getLeftColor() == Color.GREEN && !pedCrossingManager.isRightUP()) {
                                         needToAccelerate = true;
                                         velocity = -1f;
                                     }
@@ -210,19 +227,22 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
                                     }
                                     break;
                                 case 2:
-                                    if (carPosBetweenX(tLPos + 30, tLPos + 40) && trafficLight.getStraightRightColor() == Color.RED) {
-                                        velocity = 0;
-                                    }
-                                    if (velocity == 0 && trafficLight.getStraightRightColor() == Color.GREEN) {
+                                    if ((velocity == 0 && trafficLight.getStraightRightColor() == Color.GREEN && !pedCrossingManager.isRightUP()) || (velocity == 0 && !pedCrossingManager.isLeftUP() && posX < tLPos - 50)) {
                                         needToAccelerate = true;
                                         velocity = -1;
                                     }
-                                    break;
-                                case 3:
-                                    if (carPosBetweenX(tLPos + 30, tLPos + 40) && trafficLight.getStraightRightColor() == Color.RED) {
+                                    if (carPosBetweenX(tLPos + 30, tLPos + 40) && (trafficLight.getStraightRightColor() == Color.RED || pedCrossingManager.isRightUP())) {
                                         velocity = 0;
                                     }
-                                    if (velocity == 0 && trafficLight.getStraightRightColor() == Color.GREEN) {
+                                    if(carPosBetweenX(300, 310) && pedCrossingManager.isLeftUP()){
+                                        velocity = 0;
+                                    }
+                                    break;
+                                case 3:
+                                    if (carPosBetweenX(tLPos + 30, tLPos + 40) && (trafficLight.getStraightRightColor() == Color.RED || pedCrossingManager.isRightUP())) {
+                                        velocity = 0;
+                                    }
+                                    if (velocity == 0 && trafficLight.getStraightRightColor() == Color.GREEN && !carAheadWaiting()  && !pedCrossingManager.isRightUP()) {
                                         needToAccelerate = true;
                                         velocity = -1;
                                     }
@@ -234,24 +254,24 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
                                     }
                                     break;
                             }
+                            if(carAhead != null){
+                                if(carPosBetweenX(carAhead.posX+50, carAhead.posX+110)){
+                                    velocity = 0;
+                                }
+                            }
                         }
                         break;
                     case RIGHT:
                         velocity = Math.abs(velocity);
                         trafficLight = trafficLights.get(0);
                         tLPos = trafficLight.getSprite().getX();
-                        if(carAhead != null){
-                            if(carPosBetweenX(carAhead.posX-110, carAhead.posX-50)){
-                                velocity = 0;
-                            }
-                        }
                         if(!madeTurn) {
                             switch (lane) {
                                 case 1:
-                                    if (carPosBetweenX(tLPos - 55, tLPos - 45) && trafficLight.getLeftColor() == Color.RED) {
+                                    if (carPosBetweenX(tLPos - 55, tLPos - 45) && (trafficLight.getLeftColor() == Color.RED || pedCrossingManager.isLeftDOWN())) {
                                         velocity = 0;
                                     }
-                                    if (velocity == 0 && trafficLight.getLeftColor() == Color.GREEN) {
+                                    if (velocity == 0 && trafficLight.getLeftColor() == Color.GREEN && !pedCrossingManager.isLeftDOWN()) {
                                         needToAccelerate = true;
                                         velocity = 1;
                                     }
@@ -263,19 +283,22 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
                                     }
                                     break;
                                 case 2:
-                                    if (carPosBetweenX(tLPos - 55, tLPos - 45) && trafficLight.getStraightRightColor() == Color.RED) {
-                                        velocity = 0;
-                                    }
-                                    if (velocity == 0 && trafficLight.getStraightRightColor() == Color.GREEN) {
+                                    if (velocity == 0 && trafficLight.getStraightRightColor() == Color.GREEN && !pedCrossingManager.isLeftDOWN() || (velocity == 0 && !pedCrossingManager.isRightDOWN() && posX > tLPos + 50)) {
                                         needToAccelerate = true;
                                         velocity = 1;
                                     }
-                                    break;
-                                case 3:
-                                    if (carPosBetweenX(tLPos - 55, tLPos - 45) && trafficLight.getStraightRightColor() == Color.RED) {
+                                    if (carPosBetweenX(tLPos - 55, tLPos - 45) && (trafficLight.getStraightRightColor() == Color.RED || pedCrossingManager.isLeftDOWN())) {
                                         velocity = 0;
                                     }
-                                    if (velocity == 0 && trafficLight.getStraightRightColor() == Color.GREEN) {
+                                    if(carPosBetweenX(590, 600) && pedCrossingManager.isRightDOWN()){
+                                        velocity = 0;
+                                    }
+                                    break;
+                                case 3:
+                                    if (carPosBetweenX(tLPos - 55, tLPos - 45) && (trafficLight.getStraightRightColor() == Color.RED || pedCrossingManager.isLeftDOWN())) {
+                                        velocity = 0;
+                                    }
+                                    if (velocity == 0 && trafficLight.getStraightRightColor() == Color.GREEN && !carAheadWaiting() && !pedCrossingManager.isLeftDOWN()) {
                                         needToAccelerate = true;
                                         velocity = 1;
                                     }
@@ -287,6 +310,11 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
                                     }
                                     break;
                             }
+                            if(carAhead != null){
+                                if(carPosBetweenX(carAhead.posX-110, carAhead.posX-50)){
+                                    velocity = 0;
+                                }
+                            }
                         }
                         break;
                 }
@@ -294,23 +322,20 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
 
                 break;
             case MOVE_Y:
+                if(carAheadWaiting()) isWaiting = true;
+                else isWaiting = false;
                 switch (carDirection){
                     case UP:
                         velocity = Math.abs(velocity);
                         trafficLight = trafficLights.get(3);
                         tLPos = trafficLight.getSprite().getY();
-                        if(carAhead != null){
-                            if(carPosBetweenY(carAhead.posY-110, carAhead.posY-50)){
-                                velocity = 0;
-                            }
-                        }
                         if(!madeTurn) {
                             switch (lane) {
                                 case 1:
-                                    if (carPosBetweenY(tLPos - 55, tLPos - 45) && trafficLight.getLeftColor() == Color.RED) {
+                                    if (carPosBetweenY(tLPos - 55, tLPos - 45) && (trafficLight.getLeftColor() == Color.RED || pedCrossingManager.isDownRIGHT())) {
                                         velocity = 0;
                                     }
-                                    if (velocity == 0 && trafficLight.getLeftColor() == Color.GREEN) {
+                                    if (velocity == 0 && trafficLight.getLeftColor() == Color.GREEN && !pedCrossingManager.isDownRIGHT) {
                                         needToAccelerate = true;
                                         velocity = 1;
                                     }
@@ -322,19 +347,22 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
                                     }
                                     break;
                                 case 2:
-                                    if (carPosBetweenY(tLPos - 55, tLPos - 45) && trafficLight.getStraightRightColor() == Color.RED) {
-                                        velocity = 0;
-                                    }
-                                    if (velocity == 0 && trafficLight.getStraightRightColor() == Color.GREEN) {
+                                    if ((velocity == 0 && trafficLight.getStraightRightColor() == Color.GREEN && !pedCrossingManager.isDownRIGHT) || (velocity == 0 && !pedCrossingManager.isUpRIGHT() && posY > tLPos + 50)) {
                                         needToAccelerate = true;
                                         velocity = 1;
                                     }
-                                    break;
-                                case 3:
-                                    if (carPosBetweenY(tLPos - 55, tLPos - 45) && trafficLight.getStraightRightColor() == Color.RED) {
+                                    if (carPosBetweenY(tLPos - 55, tLPos - 45) && (trafficLight.getStraightRightColor() == Color.RED || pedCrossingManager.isDownRIGHT())) {
                                         velocity = 0;
                                     }
-                                    if (velocity == 0 && trafficLight.getStraightRightColor() == Color.GREEN) {
+                                    if(carPosBetweenY(610, 620) && pedCrossingManager.isUpRIGHT()){
+                                        velocity = 0;
+                                    }
+                                    break;
+                                case 3:
+                                    if (carPosBetweenY(tLPos - 55, tLPos - 45) && (trafficLight.getStraightRightColor() == Color.RED || pedCrossingManager.isDownRIGHT())) {
+                                        velocity = 0;
+                                    }
+                                    if (velocity == 0 && trafficLight.getStraightRightColor() == Color.GREEN && !carAheadWaiting() && !pedCrossingManager.isDownRIGHT) {
                                         needToAccelerate = true;
                                         velocity = 1;
                                     }
@@ -346,24 +374,25 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
                                     }
                                     break;
                             }
+                            if(carAhead != null){
+                                if(carPosBetweenY(carAhead.posY-110, carAhead.posY)){
+                                    velocity = 0;
+                                    break;
+                                }
+                            }
                         }
                         break;
                     case DOWN:
                         velocity = -Math.abs(velocity);
                         trafficLight = trafficLights.get(1);
                         tLPos = trafficLight.getSprite().getY();
-                        if(carAhead != null){
-                            if(carPosBetweenY(carAhead.posY+110, carAhead.posY+50)){
-                                velocity = 0;
-                            }
-                        }
                         if(!madeTurn) {
                             switch (lane) {
                                 case 1:
-                                    if (carPosBetweenY(tLPos + 30, tLPos + 40) && trafficLight.getLeftColor() == Color.RED) {
+                                    if (carPosBetweenY(tLPos + 30, tLPos + 40) && (trafficLight.getLeftColor() == Color.RED || pedCrossingManager.isUpLEFT())) {
                                         velocity = 0;
                                     }
-                                    if (velocity == 0 && trafficLight.getLeftColor() == Color.GREEN) {
+                                    if (velocity == 0 && trafficLight.getLeftColor() == Color.GREEN && !pedCrossingManager.isUpLEFT()) {
                                         needToAccelerate = true;
                                         velocity = -1;
                                     }
@@ -375,21 +404,28 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
                                     }
                                     break;
                                 case 2:
-                                    if (carPosBetweenY(tLPos + 30, tLPos + 40) && trafficLight.getStraightRightColor() == Color.RED) {
+                                    if ((velocity == 0 && trafficLight.getStraightRightColor() == Color.GREEN && !pedCrossingManager.isUpLEFT()) || (velocity == 0 && !pedCrossingManager.isDownLEFT() && posY < tLPos - 50)) {
+                                        needToAccelerate = true;
+                                        velocity = -1;
+                                    }
+                                    if (carPosBetweenY(tLPos + 30, tLPos + 40) && (trafficLight.getStraightRightColor() == Color.RED || pedCrossingManager.isUpLEFT())) {
                                         velocity = 0;
                                     }
-                                    if (velocity == 0 && trafficLight.getStraightRightColor() == Color.GREEN) {
-                                        needToAccelerate = true;
-                                        velocity = 1;
+                                    if(carPosBetweenY(330, 340) && pedCrossingManager.isDownLEFT()){
+                                        velocity = 0;
                                     }
                                     break;
                                 case 3:
-                                    if (carPosBetweenY(tLPos + 30, tLPos + 40) && trafficLight.getStraightRightColor() == Color.RED) {
+                                    if (carPosBetweenY(tLPos + 30, tLPos + 40) && (trafficLight.getStraightRightColor() == Color.RED || pedCrossingManager.isUpLEFT())) {
                                         velocity = 0;
                                     }
-                                    if (velocity == 0 && trafficLight.getStraightRightColor() == Color.GREEN) {
+                                    if (velocity == 0 && trafficLight.getStraightRightColor() == Color.GREEN && !carAheadWaiting() && !pedCrossingManager.isUpLEFT()) {
                                         needToAccelerate = true;
                                         velocity = -1;
+                                    }
+                                    if(carAheadWaiting()){
+                                        needToAccelerate=false;
+                                        velocity = 0;
                                     }
                                     if (posY <= tLPos - 25) {
                                         velocity = -maxVelocity;
@@ -399,54 +435,87 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
                                     }
                                     break;
                             }
+                            if(carAhead != null){
+                                if(carPosBetweenY(carAhead.posY+110, carAhead.posY+50)){
+                                    velocity = 0;
+                                }
+                            }
                         }
                         break;
                 }
                 getSprite().translate(0, velocity);
                 break;
             case TURNING:
-                decelerate((float)1/2*maxVelocity, (float)1/30);
+                if(!isWaiting) {
+                    decelerate((float) 1 / 2 * maxVelocity, (float) 1 / 30);
+                }
+                if(carAheadWaiting()) isWaiting = true;
+                else isWaiting = false;
 
                 switch(command) {
                     case TURN_LEFT:
                         switch (carDirection){
                             case UP_LEFT:
-                                if(steer(false, 1f)){
-                                    setCommand(Command.GO_STRAIGHT);
-                                    setCarDirection(CarDirection.LEFT);
-                                    setCarState(CarState.MOVE_X);
-                                    angle = 180;
-                                    getSprite().setRotation(angle);
+                                if(!(pedCrossingManager.isLeftUP() && carPosBetweenX(305, 315)) && !carAheadWaiting()) {
+                                    if (steer(false, 1f)) {
+                                        setCommand(Command.GO_STRAIGHT);
+                                        setCarDirection(CarDirection.LEFT);
+                                        setCarState(CarState.MOVE_X);
+                                        angle = 180;
+                                        getSprite().setRotation(angle);
+                                    }
+                                }else{
+                                    isWaiting = true;
+                                    cosSpeed = 0;
+                                    sinSpeed = 0;
                                 }
                                 getSprite().translate(-sinSpeed, cosSpeed);
                                 break;
                             case RIGHT_UP:
-                                if(steer(false, 1f)){
-                                    setCommand(Command.GO_STRAIGHT);
-                                    setCarDirection(CarDirection.UP);
-                                    setCarState(CarState.MOVE_Y);
-                                    angle = 90;
-                                    getSprite().setRotation(angle);
+                                if(!(pedCrossingManager.isUpRIGHT() && carPosBetweenY(620, 630)) && !carAheadWaiting()) {
+                                    if (steer(false, 1f)) {
+                                        setCommand(Command.GO_STRAIGHT);
+                                        setCarDirection(CarDirection.UP);
+                                        setCarState(CarState.MOVE_Y);
+                                        angle = 90;
+                                        getSprite().setRotation(angle);
+                                    }
+                                }else{
+                                    isWaiting = true;
+                                    cosSpeed = 0;
+                                    sinSpeed = 0;
                                 }
                                 getSprite().translate(cosSpeed, sinSpeed);
                                 break;
                             case DOWN_RIGHT:
-                                if(steer(false, 1f)){
-                                    setCommand(Command.GO_STRAIGHT);
-                                    setCarDirection(CarDirection.RIGHT);
-                                    setCarState(CarState.MOVE_X);
-                                    angle = 0;
-                                    getSprite().setRotation(angle);
+                                if(!(pedCrossingManager.isRightDOWN() && carPosBetweenX(580, 590)) && !carAheadWaiting()) {
+                                    if (steer(false, 1f)) {
+                                        setCommand(Command.GO_STRAIGHT);
+                                        setCarDirection(CarDirection.RIGHT);
+                                        setCarState(CarState.MOVE_X);
+                                        angle = 0;
+                                        getSprite().setRotation(angle);
+                                    }
+                                }else{
+                                    isWaiting = true;
+                                    cosSpeed = 0;
+                                    sinSpeed = 0;
                                 }
                                 getSprite().translate(-sinSpeed, cosSpeed);
                                 break;
                             case LEFT_DOWN:
-                                if(steer(false, 1f)){
-                                    setCommand(Command.GO_STRAIGHT);
-                                    setCarDirection(CarDirection.DOWN);
-                                    setCarState(CarState.MOVE_Y);
-                                    angle = 270;
-                                    getSprite().setRotation(angle);
+                                if(!(pedCrossingManager.isDownLEFT() && carPosBetweenY(330, 340)) && !carAheadWaiting()) {
+                                    if (steer(false, 1f)) {
+                                        setCommand(Command.GO_STRAIGHT);
+                                        setCarDirection(CarDirection.DOWN);
+                                        setCarState(CarState.MOVE_Y);
+                                        angle = 270;
+                                        getSprite().setRotation(angle);
+                                    }
+                                }else{
+                                    isWaiting = true;
+                                    cosSpeed = 0;
+                                    sinSpeed = 0;
                                 }
                                 getSprite().translate(cosSpeed, sinSpeed);
                                 break;
@@ -455,42 +524,66 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
                     case TURN_RIGHT:
                         switch(carDirection) {
                             case UP_RIGHT:
-                                if(steer(true, 2f)){
-                                    setCommand(Command.GO_STRAIGHT);
-                                    setCarDirection(CarDirection.RIGHT);
-                                    setCarState(CarState.MOVE_X);
-                                    angle = 0;
-                                    getSprite().setRotation(angle);
+                                if(!(pedCrossingManager.isRightDOWN() && carPosBetweenY(270, 280))) {
+                                    if (steer(true, 2f)) {
+                                        setCommand(Command.GO_STRAIGHT);
+                                        setCarDirection(CarDirection.RIGHT);
+                                        setCarState(CarState.MOVE_X);
+                                        angle = 0;
+                                        getSprite().setRotation(angle);
+                                    }
+                                }else{
+                                    isWaiting = true;
+                                    cosSpeed = 0;
+                                    sinSpeed = 0;
                                 }
                                 getSprite().translate(sinSpeed, cosSpeed);
                                 break;
                             case RIGHT_DOWN:
-                                if(steer(true, 2f)){
-                                    setCommand(Command.GO_STRAIGHT);
-                                    setCarDirection(CarDirection.DOWN);
-                                    setCarState(CarState.MOVE_Y);
-                                    angle = 270;
-                                    getSprite().setRotation(angle);
+                                if(!(pedCrossingManager.isDownLEFT() && carPosBetweenX(270, 280))){
+                                    if(steer(true, 2f)){
+                                        setCommand(Command.GO_STRAIGHT);
+                                        setCarDirection(CarDirection.DOWN);
+                                        setCarState(CarState.MOVE_Y);
+                                        angle = 270;
+                                        getSprite().setRotation(angle);
+                                    }
+                                }else{
+                                    isWaiting = true;
+                                    cosSpeed = 0;
+                                    sinSpeed = 0;
                                 }
                                 getSprite().translate(cosSpeed, -sinSpeed);
                                 break;
                             case DOWN_LEFT:
-                                if(steer(true, 2f)){
-                                    setCommand(Command.GO_STRAIGHT);
-                                    setCarDirection(CarDirection.LEFT);
-                                    setCarState(CarState.MOVE_X);
-                                    angle = 180;
-                                    getSprite().setRotation(angle);
+                                if(!(pedCrossingManager.isLeftUP() && carPosBetweenY(650, 660))) {
+                                    if (steer(true, 2f)) {
+                                        setCommand(Command.GO_STRAIGHT);
+                                        setCarDirection(CarDirection.LEFT);
+                                        setCarState(CarState.MOVE_X);
+                                        angle = 180;
+                                        getSprite().setRotation(angle);
+                                    }
+                                }else{
+                                    isWaiting = true;
+                                    cosSpeed = 0;
+                                    sinSpeed = 0;
                                 }
                                 getSprite().translate(sinSpeed, cosSpeed);
                                 break;
                             case LEFT_UP:
-                                if(steer(true, 2f)){
-                                    setCommand(Command.GO_STRAIGHT);
-                                    setCarDirection(CarDirection.UP);
-                                    setCarState(CarState.MOVE_Y);
-                                    angle = 90;
-                                    getSprite().setRotation(angle);
+                                if(!(pedCrossingManager.isUpRIGHT() && carPosBetweenX(650, 660))) {
+                                    if (steer(true, 2f)) {
+                                        setCommand(Command.GO_STRAIGHT);
+                                        setCarDirection(CarDirection.UP);
+                                        setCarState(CarState.MOVE_Y);
+                                        angle = 90;
+                                        getSprite().setRotation(angle);
+                                    }
+                                }else{
+                                    isWaiting = true;
+                                    cosSpeed = 0;
+                                    sinSpeed = 0;
                                 }
                                 getSprite().translate(cosSpeed, -sinSpeed);
                                 break;
