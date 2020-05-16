@@ -14,7 +14,7 @@ public class TrafficLightManager implements Serializable {
     private TrafficLightState state;
     transient private static final Color RED = Color.RED;
     transient private static final Color GREEN = Color.GREEN;
-    private static final int LIGHT_INTERVAL = 100;
+    private static final int LIGHT_INTERVAL = 200;
 
 
     public TrafficLightManager(ArrayList<TrafficLight> trafficLights){

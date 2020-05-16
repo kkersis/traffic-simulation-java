@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class Pedestrian extends TrafficParticipant implements Cloneable, Serializable {
 
@@ -13,6 +14,7 @@ public class Pedestrian extends TrafficParticipant implements Cloneable, Seriali
 
     private PedestrianState pedestrianState;
     private PedestrianCommand pedestrianCommand;
+    private ArrayList<TrafficLight> trafficLights;
 
     @Override
     public Object clone() throws CloneNotSupportedException{
@@ -21,24 +23,30 @@ public class Pedestrian extends TrafficParticipant implements Cloneable, Seriali
 
 
     public Pedestrian(Sprite sprite, float velocity, float angle, Vector2 pedestrianPos, PedestrianState pedestrianState,
-                      PedestrianCommand pedestrianCommand){
+                      PedestrianCommand pedestrianCommand, ArrayList<TrafficLight> trafficLights){
         super(sprite, velocity, angle, pedestrianPos);
         this.pedestrianState = pedestrianState;
         this.pedestrianCommand = pedestrianCommand;
+        this.trafficLights = trafficLights;
         maxVelocity = 1f;
         if(velocity == 0) this.velocity = maxVelocity;
     }
     public Pedestrian(String imageSrc, float velocity, float angle, Vector2 pedestrianPos, PedestrianState pedestrianState,
-                      PedestrianCommand pedestrianCommand){
-        this(new Sprite(new Texture(imageSrc)), velocity, angle, pedestrianPos, pedestrianState, pedestrianCommand);
+                      PedestrianCommand pedestrianCommand, ArrayList<TrafficLight> trafficLights){
+        this(new Sprite(new Texture(imageSrc)), velocity, angle, pedestrianPos, pedestrianState, pedestrianCommand, trafficLights);
         this.imageSrc = imageSrc;
     }
     public Pedestrian(){
-        this(new Sprite(new Texture("ped.png")), 0, 0, new Vector2(0, 0), PedestrianState.MOVE_X, PedestrianCommand.GO);
+        this(new Sprite(new Texture("ped.png")), 0, 0, new Vector2(0, 0), PedestrianState.MOVE_X, PedestrianCommand.GO, null);
     }
 
     @Override
     public void setAhead(TrafficParticipant ahead) {}
+
+    @Override
+    public void setLights(ArrayList<TrafficLight> trafficLights){
+        this.trafficLights = trafficLights;
+    }
 
 
     public Pedestrian.PedestrianState getPedState() {

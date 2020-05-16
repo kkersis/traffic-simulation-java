@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public abstract class TrafficParticipant implements Movable, Serializable {
 
@@ -90,6 +91,7 @@ public abstract class TrafficParticipant implements Movable, Serializable {
     }
 
     public abstract void setAhead(TrafficParticipant ahead);
+    public abstract void setLights(ArrayList<TrafficLight> trafficLights);
 
 
     @Override
