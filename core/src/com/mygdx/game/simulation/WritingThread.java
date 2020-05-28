@@ -15,6 +15,7 @@ public class WritingThread extends Thread{
             }
         }catch (Exception e){
             System.out.println("Couldn't save!");
+            e.printStackTrace();
         }
     }
 }

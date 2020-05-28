@@ -1,0 +1,292 @@
+@startuml
+
+title __TRAFFIC's Class Diagram__\n
+
+  namespace com.mygdx.game.traffic {
+    class com.mygdx.game.traffic.Car {
+        - anglePassed : float
+        - canTurn : boolean
+        {static} - carCount : int
+        - cosSpeed : float
+        - isWaiting : boolean
+        - lane : int
+        - madeTurn : boolean
+        - sinSpeed : float
+        - trafficLights : ArrayList<TrafficLight>
+        + Car()
+        + Car()
+        + Car()
+        {static} + carDestroyed()
+        + clone()
+        + getCarDirection()
+        + getCarState()
+        + getCommand()
+        + getCount()
+        + move()
+        + setAhead()
+        + setCarDirection()
+        + setCarState()
+        + setCommand()
+        + setCrossingManager()
+        + setLane()
+        + setLights()
+        + steer()
+        + toString()
+        - carAheadWaiting()
+        - carPosBetweenX()
+        - carPosBetweenY()
+        - decelerate()
+    }
+  }
+  
+
+  namespace com.mygdx.game.traffic {
+    enum CarDirection {
+      DOWN
+      DOWN_LEFT
+      DOWN_RIGHT
+      LEFT
+      LEFT_DOWN
+      LEFT_UP
+      RIGHT
+      RIGHT_DOWN
+      RIGHT_UP
+      UP
+      UP_LEFT
+      UP_RIGHT
+    }
+  }
+  
+
+  namespace com.mygdx.game.traffic {
+    enum CarState {
+      BRAKE
+      MOVE_X
+      MOVE_Y
+      TURNING
+    }
+  }
+  
+
+  namespace com.mygdx.game.traffic {
+    enum Command {
+      GO_STRAIGHT
+      TURN_LEFT
+      TURN_RIGHT
+    }
+  }
+  
+
+  namespace com.mygdx.game.traffic {
+    interface com.mygdx.game.traffic.Movable {
+        {abstract} + accelerate()
+        {abstract} + move()
+    }
+  }
+  
+
+  namespace com.mygdx.game.traffic {
+    class com.mygdx.game.traffic.Pedestrian {
+        - trafficLights : ArrayList<TrafficLight>
+        + Pedestrian()
+        + Pedestrian()
+        + Pedestrian()
+        + clone()
+        + getPedCommand()
+        + getPedState()
+        + move()
+        + setAhead()
+        + setLights()
+        + setPedCommand()
+        + setPedState()
+        + toString()
+    }
+  }
+  
+
+  namespace com.mygdx.game.traffic {
+    enum PedestrianCommand {
+      GO
+      STOP
+    }
+  }
+  
+
+  namespace com.mygdx.game.traffic {
+    enum PedestrianState {
+      MOVE_X
+      MOVE_Y
+      STANDING
+    }
+  }
+  
+
+  namespace com.mygdx.game.traffic {
+    class com.mygdx.game.traffic.PedestriansCrossingManager {
+        + isDownLEFT : boolean
+        + isDownRIGHT : boolean
+        + isLeftDOWN : boolean
+        + isLeftUP : boolean
+        + isRightDOWN : boolean
+        + isRightUP : boolean
+        + isUpLEFT : boolean
+        + isUpRIGHT : boolean
+        - down : ArrayList<Pedestrian>
+        - left : ArrayList<Pedestrian>
+        - pos : float
+        - pos1 : float
+        - pos2 : float
+        - pos3 : float
+        - pos4 : float
+        - right : ArrayList<Pedestrian>
+        - up : ArrayList<Pedestrian>
+        + addDown()
+        + addLeft()
+        + addRight()
+        + addUp()
+        + check()
+        + isDownLEFT()
+        + isDownRIGHT()
+        + isLeftDOWN()
+        + isLeftUP()
+        + isRightDOWN()
+        + isRightUP()
+        + isUpLEFT()
+        + isUpRIGHT()
+        - PedPosBetweenX()
+        - PedPosBetweenY()
+    }
+  }
+  
+
+  namespace com.mygdx.game.traffic {
+    interface com.mygdx.game.traffic.Steerable {
+        {abstract} + steer()
+    }
+  }
+  
+
+  namespace com.mygdx.game.traffic {
+    class com.mygdx.game.traffic.TrafficLight {
+        - angle : float
+        - leftColor : Color
+        - sprite : Sprite
+        - straightRightColor : Color
+        + TrafficLight()
+        + getAngle()
+        + getLeftColor()
+        + getSprite()
+        + getStraightRightColor()
+        + setAngle()
+        + setLeftColor()
+        + setLightsColor()
+        + setSprite()
+        + setSprite()
+        + setStraightRightColor()
+    }
+  }
+  
+
+  namespace com.mygdx.game.traffic {
+    class com.mygdx.game.traffic.TrafficLightManager {
+        {static} - GREEN : Color
+        {static} - LIGHT_INTERVAL : int
+        {static} - RED : Color
+        - counter : int
+        - nextLightCounter : int
+        - trafficLights : ArrayList<TrafficLight>
+        + TrafficLightManager()
+        + getCounter()
+        + getNextLightCounter()
+        + getState()
+        + setCounter()
+        + setLights()
+        + setNextLightCounter()
+        + setState()
+        + updateLights()
+        - change()
+    }
+  }
+  
+
+  namespace com.mygdx.game.traffic {
+    enum TrafficLightState {
+      LEFT_HORIZONTAL
+      LEFT_VERTICAL
+      STRAIGHT_AND_RIGHT_HORIZONTAL
+      STRAIGHT_AND_RIGHT_VERTICAL
+    }
+  }
+  
+
+  namespace com.mygdx.game.traffic {
+    abstract class com.mygdx.game.traffic.TrafficParticipant {
+        # angle : float
+        # imageSrc : String
+        # maxVelocity : float
+        # needToAccelerate : boolean
+        # posX : float
+        # posY : float
+        # sprite : Sprite
+        # velocity : float
+        {static} - participantsCount : int
+        + TrafficParticipant()
+        + TrafficParticipant()
+        + accelerate()
+        + clone()
+        + getAngle()
+        + getCount()
+        + getSprite()
+        + getVelocity()
+        {static} + participantDestroyed()
+        {abstract} + setAhead()
+        + setAngle()
+        {abstract} + setLights()
+        + setPosition()
+        + setSprite()
+        + setSprite()
+        + setSprite()
+        + setVelocity()
+        + toString()
+        + updateSprite()
+    }
+  }
+  
+
+  com.mygdx.game.traffic.Car .up.|> com.mygdx.game.traffic.Steerable
+  com.mygdx.game.traffic.Car .up.|> java.io.Serializable
+  com.mygdx.game.traffic.Car .up.|> java.lang.Cloneable
+  com.mygdx.game.traffic.Car -up-|> com.mygdx.game.traffic.TrafficParticipant
+  com.mygdx.game.traffic.Car o-- com.mygdx.game.traffic.Car : carAhead
+  com.mygdx.game.traffic.Car o-- com.mygdx.game.traffic.Car.CarDirection : carDirection
+  com.mygdx.game.traffic.Car o-- com.mygdx.game.traffic.Car.CarState : carState
+  com.mygdx.game.traffic.Car o-- com.mygdx.game.traffic.Car.Command : command
+  com.mygdx.game.traffic.Car o-- com.mygdx.game.traffic.PedestriansCrossingManager : pedCrossingManager
+  com.mygdx.game.traffic.Car o-- com.mygdx.game.traffic.Car.CarState : prevState
+  com.mygdx.game.traffic.Car +-down- com.mygdx.game.traffic.Car.CarDirection
+  com.mygdx.game.traffic.Car +-down- com.mygdx.game.traffic.Car.CarState
+  com.mygdx.game.traffic.Car +-down- com.mygdx.game.traffic.Car.Command
+  com.mygdx.game.traffic.Pedestrian .up.|> java.io.Serializable
+  com.mygdx.game.traffic.Pedestrian .up.|> java.lang.Cloneable
+  com.mygdx.game.traffic.Pedestrian -up-|> com.mygdx.game.traffic.TrafficParticipant
+  com.mygdx.game.traffic.Pedestrian o-- com.mygdx.game.traffic.Pedestrian.PedestrianCommand : pedestrianCommand
+  com.mygdx.game.traffic.Pedestrian o-- com.mygdx.game.traffic.Pedestrian.PedestrianState : pedestrianState
+  com.mygdx.game.traffic.Pedestrian +-down- com.mygdx.game.traffic.Pedestrian.PedestrianCommand
+  com.mygdx.game.traffic.Pedestrian +-down- com.mygdx.game.traffic.Pedestrian.PedestrianState
+  com.mygdx.game.traffic.PedestriansCrossingManager .up.|> java.io.Serializable
+  com.mygdx.game.traffic.TrafficLight .up.|> java.io.Serializable
+  com.mygdx.game.traffic.TrafficLightManager .up.|> java.io.Serializable
+  com.mygdx.game.traffic.TrafficLightManager o-- com.mygdx.game.traffic.TrafficLightManager.TrafficLightState : state
+  com.mygdx.game.traffic.TrafficLightManager +-down- com.mygdx.game.traffic.TrafficLightManager.TrafficLightState
+  com.mygdx.game.traffic.TrafficParticipant .up.|> com.mygdx.game.traffic.Movable
+  com.mygdx.game.traffic.TrafficParticipant .up.|> java.io.Serializable
+
+
+right footer
+
+
+PlantUML diagram generated by SketchIt! (https://bitbucket.org/pmesmeur/sketch.it)
+For more information about this tool, please contact philippe.mesmeur@gmail.com
+endfooter
+
+@enduml

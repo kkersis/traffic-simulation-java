@@ -1,0 +1,162 @@
+@startuml
+
+title __SIMULATION's Class Diagram__\n
+
+  namespace com.mygdx.game.simulation {
+    class com.mygdx.game.simulation.CarsSpawnManager {
+        - counter : int
+        - downLast : Car[]
+        - interval : int
+        - leftLast : Car[]
+        - rightLast : Car[]
+        - upLast : Car[]
+        + getDownLast()
+        + getLeftLast()
+        + getRightLast()
+        + getUpLast()
+        + setDownLast()
+        + setLeftLast()
+        + setRightLast()
+        + setUpLast()
+        + update()
+        ~ CarsSpawnManager()
+    }
+  }
+  
+
+  namespace com.mygdx.game.simulation {
+    class com.mygdx.game.simulation.MyGdxGame {
+        - backgroundImage : Texture
+        - batch : SpriteBatch
+        - cars : ArrayList<Car>
+        - pedestrians : ArrayList<Pedestrian>
+        - shapeRenderer : ShapeRenderer
+        - trafficLights : ArrayList<TrafficLight>
+        - trafficParticipants : ArrayList<TrafficParticipant>
+        + create()
+        + dispose()
+        {static} + getRandomBetween2()
+        + keyDown()
+        + keyTyped()
+        + keyUp()
+        + mouseMoved()
+        + render()
+        + scrolled()
+        + spawnCarsDown()
+        + spawnCarsLeft()
+        + spawnCarsRight()
+        + spawnCarsUp()
+        + spawnPedestrianDown()
+        + spawnPedestrianLeft()
+        + spawnPedestrianRight()
+        + spawnPedestrianUp()
+        + touchDown()
+        + touchDragged()
+        + touchUp()
+        {static} - getRandom()
+        - getRandomCarImage()
+        {static} - getRandomNumberInRange()
+        - paintLights()
+        - spawnTrafficLights()
+    }
+  }
+  
+
+  namespace com.mygdx.game.simulation {
+    class com.mygdx.game.simulation.PedestrianSpawnManager {
+        - counter : int
+        - interval : int
+        + update()
+        ~ PedestrianSpawnManager()
+    }
+  }
+  
+
+  namespace com.mygdx.game.simulation {
+    class com.mygdx.game.simulation.ReadingThread {
+        + getData()
+        + run()
+    }
+  }
+  
+
+  namespace com.mygdx.game.simulation {
+    class com.mygdx.game.simulation.ResourceManager {
+        {static} + load()
+        {static} + save()
+    }
+  }
+  
+
+  namespace com.mygdx.game.simulation {
+    class com.mygdx.game.simulation.SaveData {
+        - cars : ArrayList<Car>
+        - pedestrians : ArrayList<Pedestrian>
+        - trafficParticipants : ArrayList<TrafficParticipant>
+        + getCars()
+        + getPedestrians()
+        + getPedestriansCrossingManager()
+        + getTrafficLightManager()
+        + getTrafficParticipants()
+        + setData()
+    }
+  }
+  
+
+  namespace com.mygdx.game.simulation {
+    class com.mygdx.game.simulation.SpawnException {
+        - direction : String
+        - lane : int
+        + getDirection()
+        + getLane()
+        ~ SpawnException()
+        ~ SpawnException()
+        ~ SpawnException()
+    }
+  }
+  
+
+  namespace com.mygdx.game.simulation {
+    class com.mygdx.game.simulation.TrafficSimulationException {
+        ~ TrafficSimulationException()
+        ~ TrafficSimulationException()
+    }
+  }
+  
+
+  namespace com.mygdx.game.simulation {
+    class com.mygdx.game.simulation.WritingThread {
+        + run()
+        ~ WritingThread()
+    }
+  }
+  
+
+  com.mygdx.game.simulation.CarsSpawnManager .up.|> java.io.Serializable
+  com.mygdx.game.simulation.CarsSpawnManager o-- com.mygdx.game.simulation.MyGdxGame : myGdxGame
+  com.mygdx.game.simulation.MyGdxGame .up.|> com.badlogic.gdx.InputProcessor
+  com.mygdx.game.simulation.MyGdxGame -up-|> com.badlogic.gdx.ApplicationAdapter
+  com.mygdx.game.simulation.MyGdxGame o-- com.mygdx.game.simulation.CarsSpawnManager : carsSpawnManager
+  com.mygdx.game.simulation.MyGdxGame o-- com.mygdx.game.simulation.SaveData : data
+  com.mygdx.game.simulation.MyGdxGame o-- com.mygdx.game.traffic.TrafficParticipant : participant
+  com.mygdx.game.simulation.MyGdxGame o-- com.mygdx.game.traffic.PedestriansCrossingManager : pedCrossingManager
+  com.mygdx.game.simulation.MyGdxGame o-- com.mygdx.game.simulation.PedestrianSpawnManager : pedestrianSpawnManager
+  com.mygdx.game.simulation.MyGdxGame o-- com.mygdx.game.traffic.TrafficLightManager : trafficLightManager
+  com.mygdx.game.simulation.PedestrianSpawnManager .up.|> java.io.Serializable
+  com.mygdx.game.simulation.PedestrianSpawnManager o-- com.mygdx.game.simulation.MyGdxGame : myGdxGame
+  com.mygdx.game.simulation.ReadingThread o-- com.mygdx.game.simulation.SaveData : data
+  com.mygdx.game.simulation.SaveData .up.|> java.io.Serializable
+  com.mygdx.game.simulation.SaveData o-- com.mygdx.game.traffic.PedestriansCrossingManager : pedestriansCrossingManager
+  com.mygdx.game.simulation.SaveData o-- com.mygdx.game.traffic.TrafficLightManager : trafficLightManager
+  com.mygdx.game.simulation.SpawnException -up-|> com.mygdx.game.simulation.TrafficSimulationException
+  com.mygdx.game.simulation.WritingThread o-- com.mygdx.game.simulation.SaveData : data
+
+
+right footer
+
+
+PlantUML diagram generated by SketchIt! (https://bitbucket.org/pmesmeur/sketch.it)
+For more information about this tool, please contact philippe.mesmeur@gmail.com
+endfooter
+
+@enduml

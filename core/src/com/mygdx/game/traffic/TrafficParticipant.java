@@ -48,6 +48,7 @@ public abstract class TrafficParticipant implements Movable, Serializable {
             needToAccelerate = false;
         }
         else velocity += (float)1/30*velocity;
+        if(velocity == 0) velocity = 1f;
     }
 
     public static void participantDestroyed(){

@@ -1,0 +1,155 @@
+@startuml
+
+title __CORE's Class Diagram__\n
+
+  namespace com.mygdx.game.simulation {
+    class com.mygdx.game.simulation.CarsSpawnManager {
+    }
+  }
+  
+
+  namespace com.mygdx.game.simulation {
+    class com.mygdx.game.simulation.MyGdxGame {
+    }
+  }
+  
+
+  namespace com.mygdx.game.simulation {
+    class com.mygdx.game.simulation.PedestrianSpawnManager {
+    }
+  }
+  
+
+  namespace com.mygdx.game.simulation {
+    class com.mygdx.game.simulation.ReadingThread {
+    }
+  }
+  
+
+  namespace com.mygdx.game.simulation {
+    class com.mygdx.game.simulation.ResourceManager {
+    }
+  }
+  
+
+  namespace com.mygdx.game.simulation {
+    class com.mygdx.game.simulation.SaveData {
+    }
+  }
+  
+
+  namespace com.mygdx.game.simulation {
+    class com.mygdx.game.simulation.SpawnException {
+    }
+  }
+  
+
+  namespace com.mygdx.game.simulation {
+    class com.mygdx.game.simulation.TrafficSimulationException {
+    }
+  }
+  
+
+  namespace com.mygdx.game.simulation {
+    class com.mygdx.game.simulation.WritingThread {
+    }
+  }
+  
+
+  namespace com.mygdx.game.traffic {
+    class com.mygdx.game.traffic.Car {
+    }
+  }
+  
+
+  namespace com.mygdx.game.traffic {
+    interface com.mygdx.game.traffic.Movable {
+    }
+  }
+  
+
+  namespace com.mygdx.game.traffic {
+    class com.mygdx.game.traffic.Pedestrian {
+    }
+  }
+  
+
+  namespace com.mygdx.game.traffic {
+    class com.mygdx.game.traffic.PedestriansCrossingManager {
+    }
+  }
+  
+
+  namespace com.mygdx.game.traffic {
+    interface com.mygdx.game.traffic.Steerable {
+    }
+  }
+  
+
+  namespace com.mygdx.game.traffic {
+    class com.mygdx.game.traffic.TrafficLight {
+    }
+  }
+  
+
+  namespace com.mygdx.game.traffic {
+    class com.mygdx.game.traffic.TrafficLightManager {
+    }
+  }
+  
+
+  namespace com.mygdx.game.traffic {
+    abstract class com.mygdx.game.traffic.TrafficParticipant {
+    }
+  }
+  
+
+  com.mygdx.game.simulation.CarsSpawnManager .up.|> java.io.Serializable
+  com.mygdx.game.simulation.CarsSpawnManager o-- com.mygdx.game.simulation.MyGdxGame : myGdxGame
+  com.mygdx.game.simulation.MyGdxGame .up.|> com.badlogic.gdx.InputProcessor
+  com.mygdx.game.simulation.MyGdxGame -up-|> com.badlogic.gdx.ApplicationAdapter
+  com.mygdx.game.simulation.MyGdxGame o-- com.mygdx.game.simulation.CarsSpawnManager : carsSpawnManager
+  com.mygdx.game.simulation.MyGdxGame o-- com.mygdx.game.simulation.SaveData : data
+  com.mygdx.game.simulation.MyGdxGame o-- com.mygdx.game.traffic.TrafficParticipant : participant
+  com.mygdx.game.simulation.MyGdxGame o-- com.mygdx.game.traffic.PedestriansCrossingManager : pedCrossingManager
+  com.mygdx.game.simulation.MyGdxGame o-- com.mygdx.game.simulation.PedestrianSpawnManager : pedestrianSpawnManager
+  com.mygdx.game.simulation.MyGdxGame o-- com.mygdx.game.traffic.TrafficLightManager : trafficLightManager
+  com.mygdx.game.simulation.PedestrianSpawnManager .up.|> java.io.Serializable
+  com.mygdx.game.simulation.PedestrianSpawnManager o-- com.mygdx.game.simulation.MyGdxGame : myGdxGame
+  com.mygdx.game.simulation.ReadingThread o-- com.mygdx.game.simulation.SaveData : data
+  com.mygdx.game.simulation.SaveData .up.|> java.io.Serializable
+  com.mygdx.game.simulation.SaveData o-- com.mygdx.game.traffic.PedestriansCrossingManager : pedestriansCrossingManager
+  com.mygdx.game.simulation.SaveData o-- com.mygdx.game.traffic.TrafficLightManager : trafficLightManager
+  com.mygdx.game.simulation.SpawnException -up-|> com.mygdx.game.simulation.TrafficSimulationException
+  com.mygdx.game.simulation.WritingThread o-- com.mygdx.game.simulation.SaveData : data
+  com.mygdx.game.traffic.Car .up.|> com.mygdx.game.traffic.Steerable
+  com.mygdx.game.traffic.Car .up.|> java.io.Serializable
+  com.mygdx.game.traffic.Car .up.|> java.lang.Cloneable
+  com.mygdx.game.traffic.Car -up-|> com.mygdx.game.traffic.TrafficParticipant
+  com.mygdx.game.traffic.Car o-- com.mygdx.game.traffic.Car : carAhead
+  com.mygdx.game.traffic.Car o-- com.mygdx.game.traffic.Car.CarDirection : carDirection
+  com.mygdx.game.traffic.Car o-- com.mygdx.game.traffic.Car.CarState : carState
+  com.mygdx.game.traffic.Car o-- com.mygdx.game.traffic.Car.Command : command
+  com.mygdx.game.traffic.Car o-- com.mygdx.game.traffic.PedestriansCrossingManager : pedCrossingManager
+  com.mygdx.game.traffic.Car o-- com.mygdx.game.traffic.Car.CarState : prevState
+  com.mygdx.game.traffic.Pedestrian .up.|> java.io.Serializable
+  com.mygdx.game.traffic.Pedestrian .up.|> java.lang.Cloneable
+  com.mygdx.game.traffic.Pedestrian -up-|> com.mygdx.game.traffic.TrafficParticipant
+  com.mygdx.game.traffic.Pedestrian o-- com.mygdx.game.traffic.Pedestrian.PedestrianCommand : pedestrianCommand
+  com.mygdx.game.traffic.Pedestrian o-- com.mygdx.game.traffic.Pedestrian.PedestrianState : pedestrianState
+  com.mygdx.game.traffic.PedestriansCrossingManager .up.|> java.io.Serializable
+  com.mygdx.game.traffic.TrafficLight .up.|> java.io.Serializable
+  com.mygdx.game.traffic.TrafficLightManager .up.|> java.io.Serializable
+  com.mygdx.game.traffic.TrafficLightManager o-- com.mygdx.game.traffic.TrafficLightManager.TrafficLightState : state
+  com.mygdx.game.traffic.TrafficParticipant .up.|> com.mygdx.game.traffic.Movable
+  com.mygdx.game.traffic.TrafficParticipant .up.|> java.io.Serializable
+
+
+right footer
+
+
+PlantUML diagram generated by SketchIt! (https://bitbucket.org/pmesmeur/sketch.it)
+For more information about this tool, please contact philippe.mesmeur@gmail.com
+endfooter
+
+@enduml

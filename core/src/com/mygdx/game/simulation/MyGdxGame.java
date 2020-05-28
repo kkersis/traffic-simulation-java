@@ -14,7 +14,9 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
+
+public class MyGdxGame extends ApplicationAdapter implements InputProcessor{
+
 	private SpriteBatch batch;
 	private Texture backgroundImage;
 	private TrafficParticipant participant;
@@ -27,6 +29,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	private ArrayList<TrafficLight> trafficLights = new ArrayList<>();
 	private SaveData data = new SaveData();
 	private PedestriansCrossingManager pedCrossingManager = new PedestriansCrossingManager();
+	private PedestrianSpawnManager pedestrianSpawnManager;
 
 	@Override
 	public void create () {
@@ -36,7 +39,8 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		spawnTrafficLights();
 		shapeRenderer = new ShapeRenderer();
 		trafficLightManager = new TrafficLightManager(trafficLights);
-		carsSpawnManager = new CarsSpawnManager();
+		carsSpawnManager = new CarsSpawnManager(this);
+		pedestrianSpawnManager = new PedestrianSpawnManager(this);
 	}
 
 	@Override
@@ -70,6 +74,9 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		batch.end();
 
 		pedCrossingManager.check();
+		carsSpawnManager.update();
+		pedestrianSpawnManager.update();
+
 
 	}
 
@@ -90,10 +97,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 			}catch (SpawnException e){
 				System.out.println(e + " " + e.getDirection() + ", " + e.getLane() + " juostoje.");
 			}
-			catch (TrafficSimulationException e){
-				System.out.println("" + e);
-				keyDown(Keys.LEFT);
-			}catch (CloneNotSupportedException e){
+			catch (CloneNotSupportedException e){
 				e.printStackTrace();
 			}
 
@@ -158,7 +162,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 			}
 		}
 		if(keycode == Keys.P){	//saves
-			data.setData(this.trafficLightManager, this.carsSpawnManager, this.cars, this.pedestrians, this.trafficParticipants);
+			data.setData(this.trafficLightManager, this.cars, this.pedestrians, this.trafficParticipants, this.pedCrossingManager);
 			WritingThread writingThread = new WritingThread(data);
 			writingThread.start();
 		}
@@ -172,7 +176,9 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 			}
 
 			SaveData data = readingThread.getData();
-			carsSpawnManager = data.getCarsSpawnManager();
+			carsSpawnManager = new CarsSpawnManager(this);
+			pedCrossingManager = data.getPedestriansCrossingManager();
+			pedestrianSpawnManager = new PedestrianSpawnManager(this);
 			cars = data.getCars();
 			pedestrians = data.getPedestrians();
 			trafficParticipants = data.getTrafficParticipants();
@@ -241,7 +247,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		trafficLight.getSprite().setPosition(680, 220);
 	}
 
-	private void spawnPedestrianLeft() throws CloneNotSupportedException{
+	public void spawnPedestrianLeft() throws CloneNotSupportedException{
 		Pedestrian pedestrian = new Pedestrian("ped1.png", -1, 90, new Vector2(250, 1100), Pedestrian.PedestrianState.MOVE_Y, Pedestrian.PedestrianCommand.GO, trafficLights);
 		if(getRandomBetween2()) {
 			pedestrian = (Pedestrian) pedestrian.clone();
@@ -254,7 +260,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		pedestrians.add(pedestrian);
 	}
 
-	private void spawnPedestrianRight() throws CloneNotSupportedException {
+	public void spawnPedestrianRight() throws CloneNotSupportedException {
 		Pedestrian pedestrian = new Pedestrian("ped.png", -1, 270, new Vector2(700, 1100), Pedestrian.PedestrianState.MOVE_Y, Pedestrian.PedestrianCommand.GO, trafficLights);
 		if (getRandomBetween2()){
 			pedestrian = (Pedestrian) pedestrian.clone();
@@ -267,7 +273,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		pedestrians.add(pedestrian);
 	}
 
-	private void spawnPedestrianUp() throws CloneNotSupportedException {
+	public void spawnPedestrianUp() throws CloneNotSupportedException {
 		Pedestrian pedestrian = new Pedestrian("ped1.png", -1, 0, new Vector2(1100, 700), Pedestrian.PedestrianState.MOVE_X, Pedestrian.PedestrianCommand.GO, trafficLights);
 		if (getRandomBetween2()){
 			pedestrian = (Pedestrian) pedestrian.clone();
@@ -280,7 +286,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		pedestrians.add(pedestrian);
 	}
 
-	private void spawnPedestrianDown() throws CloneNotSupportedException {
+	public void spawnPedestrianDown() throws CloneNotSupportedException {
 		Pedestrian pedestrian = new Pedestrian("ped1.png", -1, 0, new Vector2(1100, 265), Pedestrian.PedestrianState.MOVE_X, Pedestrian.PedestrianCommand.GO, trafficLights);
 		if (getRandomBetween2()){
 			pedestrian = (Pedestrian) pedestrian.clone();
@@ -295,7 +301,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
 
 
-	public void spawnCarsLeft () throws TrafficSimulationException, CloneNotSupportedException{
+	public void spawnCarsLeft () throws SpawnException, CloneNotSupportedException{
 		Car car;
 		float randPos = -100-300*getRandom();
 		Car lastCar = carsSpawnManager.getLeftLast(0);
@@ -452,7 +458,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	private static float getRandom() {
 		return (float)Math.random();
 	}
-	private static boolean getRandomBetween2(){
+	public static boolean getRandomBetween2(){
 		return Math.random() > 0.5;
 	}
 	private static int getRandomNumberInRange(int min, int max) {

@@ -15,12 +15,7 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
         LEFT_UP, UP_LEFT, UP_RIGHT, RIGHT_UP, DOWN_RIGHT, LEFT_DOWN}
     public enum CarState{BRAKE, MOVE_X, MOVE_Y, TURNING}
     public enum Command{GO_STRAIGHT, TURN_LEFT, TURN_RIGHT}
-
-    //******* bus nesamoniu kai masina viena laukia kol praeis pestysis o kita uzvazios ant jos tai nzn kaip nors padaryti kad checkintu ar yra toj sankryzoj masinu
-    //ir jei yra tegu kitos nevaziuoja.
-
-    //KARTAIS MASINOS ATSISTOJA TOLI VIENOS NUO KITOS KAI KITA ISWAITING, TAI KIEKVIENAME IFE KUR NAUDOJAME CARAHAEDWAITING GAL REIKTU PAKEIST
-    //I KAZKA TOKIO KAIP CARAHEADWAITINGNEARBY
+    
 
     private static int carCount = 0;
     private CarDirection carDirection;
@@ -36,6 +31,7 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
     private boolean madeTurn = false;
     private PedestriansCrossingManager pedCrossingManager;
     private boolean isWaiting;
+    private boolean canTurn;
 
 
     @Override
@@ -198,7 +194,6 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
 
         TrafficLight trafficLight;
         float tLPos;
-        //isWaiting = false;
 
         switch(carState) {
             case BRAKE:
@@ -456,6 +451,7 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
                     case TURN_LEFT:
                         switch (carDirection){
                             case UP_LEFT:
+                                if(Math.abs(velocity) < 1) velocity = maxVelocity;
                                 if(!(pedCrossingManager.isLeftUP() && carPosBetweenX(305, 315)) && !carAheadWaiting()) {
                                     if (steer(false, 1f)) {
                                         setCommand(Command.GO_STRAIGHT);
@@ -472,6 +468,7 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
                                 getSprite().translate(-sinSpeed, cosSpeed);
                                 break;
                             case RIGHT_UP:
+                                if(Math.abs(velocity) < 1) velocity = maxVelocity;
                                 if(!(pedCrossingManager.isUpRIGHT() && carPosBetweenY(620, 630)) && !carAheadWaiting()) {
                                     if (steer(false, 1f)) {
                                         setCommand(Command.GO_STRAIGHT);
@@ -488,6 +485,7 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
                                 getSprite().translate(cosSpeed, sinSpeed);
                                 break;
                             case DOWN_RIGHT:
+                                if(Math.abs(velocity) < 1) velocity = -maxVelocity;
                                 if(!(pedCrossingManager.isRightDOWN() && carPosBetweenX(580, 590)) && !carAheadWaiting()) {
                                     if (steer(false, 1f)) {
                                         setCommand(Command.GO_STRAIGHT);
@@ -504,6 +502,7 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
                                 getSprite().translate(-sinSpeed, cosSpeed);
                                 break;
                             case LEFT_DOWN:
+                                if(Math.abs(velocity) < 1) velocity = -maxVelocity;
                                 if(!(pedCrossingManager.isDownLEFT() && carPosBetweenY(330, 340)) && !carAheadWaiting()) {
                                     if (steer(false, 1f)) {
                                         setCommand(Command.GO_STRAIGHT);
@@ -524,6 +523,7 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
                     case TURN_RIGHT:
                         switch(carDirection) {
                             case UP_RIGHT:
+                                if(Math.abs(velocity) < 1) velocity = maxVelocity;
                                 if(!(pedCrossingManager.isRightDOWN() && carPosBetweenY(270, 280))) {
                                     if (steer(true, 2f)) {
                                         setCommand(Command.GO_STRAIGHT);
@@ -540,6 +540,7 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
                                 getSprite().translate(sinSpeed, cosSpeed);
                                 break;
                             case RIGHT_DOWN:
+                                if(Math.abs(velocity) < 1) velocity = maxVelocity;
                                 if(!(pedCrossingManager.isDownLEFT() && carPosBetweenX(270, 280))){
                                     if(steer(true, 2f)){
                                         setCommand(Command.GO_STRAIGHT);
@@ -556,6 +557,7 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
                                 getSprite().translate(cosSpeed, -sinSpeed);
                                 break;
                             case DOWN_LEFT:
+                                if(Math.abs(velocity) < 1) velocity = -maxVelocity;
                                 if(!(pedCrossingManager.isLeftUP() && carPosBetweenY(650, 660))) {
                                     if (steer(true, 2f)) {
                                         setCommand(Command.GO_STRAIGHT);
@@ -572,6 +574,7 @@ public class Car extends TrafficParticipant implements Steerable, Cloneable, Ser
                                 getSprite().translate(sinSpeed, cosSpeed);
                                 break;
                             case LEFT_UP:
+                                if(Math.abs(velocity) < 1) velocity = -maxVelocity;
                                 if(!(pedCrossingManager.isUpRIGHT() && carPosBetweenX(650, 660))) {
                                     if (steer(true, 2f)) {
                                         setCommand(Command.GO_STRAIGHT);

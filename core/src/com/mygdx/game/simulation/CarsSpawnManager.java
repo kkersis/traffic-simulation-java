@@ -11,6 +11,59 @@ public class CarsSpawnManager implements Serializable {
     final private Car[] rightLast = {null, null, null};    //left, mid, right
     final private Car[] downLast = {null, null, null};    //left, mid, right
 
+    private MyGdxGame myGdxGame;
+    private final int interval = 150;
+    private int counter = interval;
+
+
+    CarsSpawnManager(MyGdxGame myGdxGame)
+    {
+        this.myGdxGame = myGdxGame;
+    }
+
+    public void update(){
+        if(interval - counter <= 0){
+            counter = 0;
+            if(MyGdxGame.getRandomBetween2()){
+                if(MyGdxGame.getRandomBetween2()){
+                    try {
+                        myGdxGame.spawnCarsLeft();
+                    }catch (SpawnException e){
+                        System.out.println(e + " " + e.getDirection() + ", " + e.getLane() + " juostoje.");
+                    }catch (CloneNotSupportedException e){
+                        e.printStackTrace();
+                    }
+                }else{
+                    try {
+                        myGdxGame.spawnCarsUp();
+                    }catch (SpawnException e){
+                        System.out.println(e + " " + e.getDirection() + ", " + e.getLane() + " juostoje.");
+                    }catch (CloneNotSupportedException e){
+                        e.printStackTrace();
+                    }
+                }
+            }else{
+                if(MyGdxGame.getRandomBetween2()){
+                    try {
+                        myGdxGame.spawnCarsRight();
+                    }catch (SpawnException e){
+                        System.out.println(e + " " + e.getDirection() + ", " + e.getLane() + " juostoje.");
+                    }catch (CloneNotSupportedException e){
+                        e.printStackTrace();
+                    }
+                }else{
+                    try {
+                        myGdxGame.spawnCarsDown();
+                    }catch (SpawnException e){
+                        System.out.println(e + " " + e.getDirection() + ", " + e.getLane() + " juostoje.");
+                    }catch (CloneNotSupportedException e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        counter++;
+    }
 
     public Car getLeftLast(int place){
         return this.leftLast[place];

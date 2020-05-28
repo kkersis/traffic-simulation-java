@@ -2,9 +2,10 @@ package com.mygdx.game.traffic;
 
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class PedestriansCrossingManager {
+public class PedestriansCrossingManager implements Serializable {
     private ArrayList<Pedestrian> left = new ArrayList<>();
     private ArrayList<Pedestrian> up = new ArrayList<>();
     private ArrayList<Pedestrian> right = new ArrayList<>();
@@ -18,11 +19,11 @@ public class PedestriansCrossingManager {
     public boolean isDownLEFT;
     public boolean isDownRIGHT;
     private float pos;
-    private final float pos1 = 255; //situs pakeist jei pestieji kirsis su masinomis
-    private final float pos2 = 465; //
+    private final float pos1 = 255;
+    private final float pos2 = 465;
 
-    private final float pos3 = 455; //
-    private final float pos4 = 655; //
+    private final float pos3 = 455;
+    private final float pos4 = 655;
 
 
     public void check(){

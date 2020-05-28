@@ -10,28 +10,25 @@ import java.util.ArrayList;
 
 public class SaveData implements Serializable {
     private TrafficLightManager trafficLightManager;
-    private CarsSpawnManager carsSpawnManager;
     private ArrayList<Car> cars;
     private ArrayList<Pedestrian> pedestrians;
     private ArrayList<TrafficParticipant> trafficParticipants;
-    private ArrayList<TrafficLight> trafficLights;
+    private PedestriansCrossingManager pedestriansCrossingManager;
 
-    public void setData(TrafficLightManager trafficLightManager, CarsSpawnManager carsSpawnManager, ArrayList<Car> cars, ArrayList<Pedestrian> pedestrians,
-                        ArrayList<TrafficParticipant> trafficParticipants){
+    public void setData(TrafficLightManager trafficLightManager, ArrayList<Car> cars, ArrayList<Pedestrian> pedestrians,
+                        ArrayList<TrafficParticipant> trafficParticipants, PedestriansCrossingManager pedestriansCrossingManager){
         this.trafficLightManager = trafficLightManager;
-        this.carsSpawnManager = carsSpawnManager;
+
         this.cars = cars;
         this.pedestrians = pedestrians;
         this.trafficParticipants = trafficParticipants;
+        this.pedestriansCrossingManager = pedestriansCrossingManager;
     }
 
     public TrafficLightManager getTrafficLightManager() {
         return trafficLightManager;
     }
 
-    public CarsSpawnManager getCarsSpawnManager() {
-        return carsSpawnManager;
-    }
 
     public ArrayList<Car> getCars() {
         return cars;
@@ -45,7 +42,9 @@ public class SaveData implements Serializable {
         return trafficParticipants;
     }
 
-    public ArrayList<TrafficLight> getTrafficLights() {
-        return trafficLights;
+    public PedestriansCrossingManager getPedestriansCrossingManager(){
+        return pedestriansCrossingManager;
     }
+
+
 }
